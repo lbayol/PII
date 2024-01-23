@@ -1,16 +1,20 @@
-// src/App.js
-
+// App.js
 import React from 'react';
-import './App.css';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Accueil from './Accueil';
+import Inscription from './Inscription';
+import Connexion from './Connexion';
 
-function App() {
+const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Bienvenue dans mon application React.js !</h1>
-      </header>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/inscription" element={<Inscription />} />
+        <Route path="/connexion" element={<Connexion />} />
+        <Route path="/" element={<Accueil />} />
+      </Routes>
+    </Router>
   );
-}
+};
 
 export default App;
