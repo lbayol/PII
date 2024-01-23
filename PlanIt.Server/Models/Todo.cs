@@ -1,6 +1,6 @@
 public class Todo
 {
-    public int Id {get; set;}
+    public int TodoId {get; set;}
     public string Nom {get; set;}
     public int Duree {get; set;}
     public DateTime Date {get; set;}

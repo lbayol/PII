@@ -22,6 +22,4 @@ public class PlanItContext : DbContext
         // Optional: log SQL queries to console
         //options.LogTo(Console.WriteLine, new[] { DbLoggerCategory.Database.Command.Name }, LogLevel.Information);
     }
-
-
 }
