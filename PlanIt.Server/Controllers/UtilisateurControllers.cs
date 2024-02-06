@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BCrypt;
+using Microsoft.AspNetCore.Cors;
 
 namespace PlanIt.Controllers
 {
@@ -44,6 +45,12 @@ public IActionResult PostUtilisateur([FromBody] UtilisateurInscriptionDTO utilis
         return BadRequest("Erreur : Veuillez remplir les informations du nouvel utilisateur.");
     }
 
+    var utilisateurExistant = _context.Utilisateurs.FirstOrDefault(u => u.Email == utilisateurDTOPOST.Email);
+
+    if (utilisateurExistant != null)
+    {
+        return BadRequest("Erreur : Un utilisateur avec cet email existe déjà.");
+    }
     // Hacher le mot de passe
     string motDePasseHaché = BCrypt.Net.BCrypt.HashPassword(utilisateurDTOPOST.Password);
 
@@ -52,15 +59,14 @@ public IActionResult PostUtilisateur([FromBody] UtilisateurInscriptionDTO utilis
         Nom = utilisateurDTOPOST.Nom,
         Prenom = utilisateurDTOPOST.Prenom,
         Email = utilisateurDTOPOST.Email,
-        Password = motDePasseHaché  // Stocker le mot de passe haché dans la base de données
+        Password = motDePasseHaché,
     };
 
     _context.Utilisateurs.Add(nouvelUtilisateur);
     _context.SaveChanges();
 
-    return CreatedAtAction("GetUtilisateur", new { id = nouvelUtilisateur.UtilisateurId }, nouvelUtilisateur);
+    return Ok("Inscription réussie");
 }
-
 
 [HttpPost("Connexion")]
 public IActionResult Connexion([FromBody] UtilisateurConnexionDTO connexionDTO)
