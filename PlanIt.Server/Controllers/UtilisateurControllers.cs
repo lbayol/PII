@@ -85,6 +85,17 @@ public IActionResult Connexion([FromBody] UtilisateurConnexionDTO connexionDTO)
     return BadRequest("L'authentification a échoué.");
 }
 
+[HttpGet("Utilisateur/{Email}")]
+public IActionResult GetUserInfo(string Email)
+{
+    var utilisateur = _context.Utilisateurs.FirstOrDefault(u => u.Email == Email);
+    if (utilisateur == null)
+        return NotFound("Utilisateur non trouvé");
+
+    return Ok(new { Prenom = utilisateur.Prenom, Nom = utilisateur.Nom });
+}
+
+
 
 
         

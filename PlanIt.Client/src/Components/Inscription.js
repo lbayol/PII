@@ -142,7 +142,7 @@ const [showError, setShowError] = useState(false);
       <div className="bouton-mail-mdp">
         <div className="overlap-group-2">
           <input
-            type="text"
+            type="password"
             placeholder="Mot de passe"
             className={`rectangle text-wrapper-9`}
             value={password}

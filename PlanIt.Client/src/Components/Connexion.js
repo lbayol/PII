@@ -7,20 +7,21 @@ import immail from '../img/mailoutlined.svg';
 import imcadenas from '../img/cadenas.svg';
 import imfleche from '../img/arrowrightoutlined.svg';
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 
 export const Connexion = () => {
   const [email, setMail] = useState('');
   const [password, setMdp] = useState('');
+  const [nom, setNom] = useState('');
+  const [prenom, setPrenom] = useState('');
   
   const [errors, setErrors] = useState({
     email: '',
     password: '',
   });
-const [showError, setShowError] = useState(false);
-
+  const navigate = useNavigate();
 
   const handleRegistration = async () => {
     const errorsCopy = {
@@ -43,7 +44,6 @@ const [showError, setShowError] = useState(false);
 
     // Vérifier s'il y a des erreurs et afficher le message d'erreur si nécessaire
     if (Object.values(errorsCopy).some((error) => error !== '')) {
-      setShowError(true);
       return;
     }
 
@@ -52,15 +52,26 @@ const [showError, setShowError] = useState(false);
         Email: email,
         Password: password,
       });
-
       console.log(response.data);
+      const userInfoResponse = await axios.get(`http://localhost:5035/api/utilisateur/Utilisateur/${email}`);
+      const Prenom = userInfoResponse.data.prenom;
+      const Nom = userInfoResponse.data.nom;
+      console.log(userInfoResponse);
+      console.log(userInfoResponse.data);
+      console.log(Prenom);
+      console.log(Nom);
+      if (Prenom && Nom) {
       setMail('');
       setMdp('');
-      setShowError(false);
+      setErrors({ email: '', password: '' });
+      navigate('/compte', { state: { prenom: Prenom, nom: Nom } });
+      console.log({ prenom: Prenom, nom: Nom });
+      } else{
+        console.error("Les données de prénom et de nom ne sont pas disponibles.");
+      } 
     } catch (error) {
       if (error.response && error.response.status === 400) {
-        setErrors((prevErrors) => ({ ...prevErrors, email: 'Un utilisateur avec cet email est déjà inscrit' }));
-        setShowError(true);
+        setErrors((prevErrors) => ({ ...prevErrors, password: 'L\'adresse e-mail ou le mot de passe est incorrect' }));
       } else {
         console.error("Erreur lors de la connexion", error);
       }
@@ -91,13 +102,13 @@ const [showError, setShowError] = useState(false);
           onChange={(e) => setMail(e.target.value)}
         />
         <img className="mail-outlined" alt="Mail outlined" src={immail} />
-        {showError && <div className="error-message">{errors.email}</div>}
+        {errors.email && <div className="error-message">{errors.email}</div>}
       </div>
 
       <div className="bouton-mail-mdp">
         <div className="overlap-group-2">
           <input
-            type="text"
+            type="password"
             placeholder="Mot de passe"
             className={`rectangle text-wrapper-9`}
             value={password}
