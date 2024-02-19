@@ -13,6 +13,15 @@ public class PlanItContext : DbContext
         DbPath = "PlanIt.db";
     }
 
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Disponibilite>()
+        .HasOne(d => d.Utilisateur)
+        .WithMany(u => u.Disponibilites)
+        .HasForeignKey(d => d.UtilisateurId)
+        .IsRequired();
+    }
+
 
     // The following configures EF to create a SQLite database file locally
     protected override void OnConfiguring(DbContextOptionsBuilder options)

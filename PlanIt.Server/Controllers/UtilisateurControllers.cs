@@ -16,25 +16,23 @@ namespace PlanIt.Controllers
             _context = context;
         }
 
-        /*[HttpGet]
-        public async Task<ActionResult<IEnumerable<UtilisateurDTOGET>>> GetUtilisateurs()
-        {
-            var utilisateurs = _context.Utilisateurs.Select(x => new UtilisateurDTOGET(x, _context));
-            return await utilisateurs.ToListAsync();
-        }
+[HttpGet("{id}")]
+public IActionResult GetUtilisateurById(int id)
+{
+    var utilisateur = _context.Utilisateurs
+                              .Include(u => u.Disponibilites)
+                              .Include(u => u.Taches)
+                              .Include(u => u.Todos)
+                              .FirstOrDefault(u => u.UtilisateurId == id);
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<UtilisateurDTOGET>> GetUtilisateur(int id)
-        {
-            var utilisateur = await _context.Utilisateurs.SingleOrDefaultAsync(u => u.Id == id);
+    if (utilisateur == null)
+    {
+        return NotFound("Utilisateur non trouvé.");
+    }
 
-            if (utilisateur == null)
-            {
-                return NotFound("L'ID fourni ne correspond à aucun utilisateur.");
-            }
+    return Ok(utilisateur);
+}
 
-            return new UtilisateurDTOGET(utilisateur, _context);
-        }*/
 
 
 [HttpPost("Inscription")]
@@ -62,10 +60,20 @@ public IActionResult PostUtilisateur([FromBody] UtilisateurInscriptionDTO utilis
         Password = motDePasseHaché,
     };
 
+    AjouterDisponibilitesParDefaut(nouvelUtilisateur);
+
     _context.Utilisateurs.Add(nouvelUtilisateur);
     _context.SaveChanges();
 
     return Ok("Inscription réussie");
+}
+
+private void AjouterDisponibilitesParDefaut(Utilisateur utilisateur)
+{
+    for (int i = 0; i < 7; i++)
+    {
+        utilisateur.Disponibilites.Add(new Disponibilite { NbHeure = 0 });
+    }
 }
 
 [HttpPost("Connexion")]
@@ -95,34 +103,38 @@ public IActionResult GetUserInfo(string Email)
     return Ok(new { Prenom = utilisateur.Prenom, Nom = utilisateur.Nom });
 }
 
+[HttpPut("{id}")]
+public IActionResult PutDisponibilitesUtilisateur(int id, [FromBody] UtilisateurPUTDisponibiliteDTO utilisateurDTO)
+{
+    if (utilisateurDTO == null || id != utilisateurDTO.UtilisateurId)
+    {
+        return BadRequest("Les données de l'utilisateur ou l'ID ne correspondent pas.");
+    }
 
+    var utilisateur = _context.Utilisateurs.Include(u => u.Disponibilites).FirstOrDefault(u => u.UtilisateurId == id);
 
+    if (utilisateur == null)
+    {
+        return NotFound("Utilisateur non trouvé.");
+    }
 
-        
+    // Assurez-vous que le nombre de disponibilités envoyées est correct
+    if (utilisateurDTO.Disponibilites.Count != utilisateur.Disponibilites.Count)
+    {
+        return BadRequest("Le nombre de disponibilités envoyées est incorrect.");
+    }
 
-        /*
-        [HttpPut("{id}")]
-        public IActionResult PutUtilisateur(int id, [FromBody] UtilisateurDTOPUT utilisateurDTO)
-        {
-            if (utilisateurDTO == null || id != utilisateurDTO.Id)
-            {
-                return BadRequest("Les données de l'utilisateur ou l'ID ne correspondent pas.");
-            }
+    // Mettre à jour les disponibilités de l'utilisateur
+    for (int i = 0; i < utilisateur.Disponibilites.Count; i++)
+    {
+        utilisateur.Disponibilites[i].NbHeure = utilisateurDTO.Disponibilites[i];
+    }
 
-            var utilisateur = _context.Utilisateurs.Find(id);
+    _context.SaveChanges();
 
-            if (utilisateur == null)
-            {
-                return NotFound("Utilisateur non trouvé.");
-            }
+    return Ok(utilisateur);
+}
 
-            utilisateur.Nom = utilisateurDTO.Nom;
-            utilisateur.Prenom = utilisateurDTO.Prenom;
-            utilisateur.Email = utilisateurDTO.Email;
-            _context.SaveChanges();
-
-            return Ok(utilisateur);
-        }*/
 
         /*[HttpDelete("{id}")]
         public IActionResult DeleteUtilisateur(int id)

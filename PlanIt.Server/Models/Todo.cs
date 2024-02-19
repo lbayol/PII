@@ -3,7 +3,7 @@ public class Todo
     public int TodoId {get; set;}
     public string Nom {get; set;}
     public int Duree {get; set;}
-    public DateTime Date {get; set;}
+    public DateTimeOffset Date {get; set;}
     public Utilisateur Utilisateur {get; set;}
     public int UtilisateurId {get; set;}
     public Tache Tache {get;set;}

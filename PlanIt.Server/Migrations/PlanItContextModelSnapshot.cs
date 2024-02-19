@@ -25,7 +25,7 @@ namespace PII.Migrations
                     b.Property<int>("NbHeure")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("UtilisateurId")
+                    b.Property<int>("UtilisateurId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("DisponibiliteId");
@@ -124,9 +124,13 @@ namespace PII.Migrations
 
             modelBuilder.Entity("Disponibilite", b =>
                 {
-                    b.HasOne("Utilisateur", null)
+                    b.HasOne("Utilisateur", "Utilisateur")
                         .WithMany("Disponibilites")
-                        .HasForeignKey("UtilisateurId");
+                        .HasForeignKey("UtilisateurId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Utilisateur");
                 });
 
             modelBuilder.Entity("Tache", b =>

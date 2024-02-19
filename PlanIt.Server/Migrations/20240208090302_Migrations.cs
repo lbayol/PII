@@ -32,7 +32,7 @@ namespace PII.Migrations
                     DisponibiliteId = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     NbHeure = table.Column<int>(type: "INTEGER", nullable: false),
-                    UtilisateurId = table.Column<int>(type: "INTEGER", nullable: true)
+                    UtilisateurId = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -41,7 +41,8 @@ namespace PII.Migrations
                         name: "FK_Disponibilite_Utilisateurs_UtilisateurId",
                         column: x => x.UtilisateurId,
                         principalTable: "Utilisateurs",
-                        principalColumn: "UtilisateurId");
+                        principalColumn: "UtilisateurId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
