@@ -38,45 +38,11 @@ public IActionResult GenererTodos(int utilisateurId, [FromBody] string dateDemar
 
     var todos = new List<Todo>();
 
-    // Recherche de la dernière date utilisée pour toutes les tâches
-    var lastTodoDate = utilisateur.Todos
-        .Where(td => td.Date <= dateDemarrage)  // Prendre en compte seulement les Todos avant la date de démarrage
-        .OrderByDescending(td => td.Date)
-        .Select(td => td.Date)
-        .FirstOrDefault();
-
-    // Utiliser la date de démarrage fournie si aucune date n'a été trouvée
-    var date = lastTodoDate != default(DateTimeOffset) ? lastTodoDate.AddDays(1) : dateDemarrage;
+    var date = dateDemarrage;
 
     foreach (var tache in utilisateur.Taches)
     {
         var dureeTacheRestante = tache.Duree;
-
-        // Vérifier s'il reste de la disponibilité du jour précédent
-        if (lastTodoDate != default(DateTimeOffset) && date > dateDemarrage.AddDays(1))
-        {
-            // Calculer la disponibilité totale pour le jour actuel
-            var jourSemaine = ((int)lastTodoDate.DayOfWeek + 6) % 7;
-            var disponibiliteJourPrecedent = utilisateur.Disponibilites.ElementAt(jourSemaine);
-            var disponibiliteTotale = disponibiliteJourPrecedent.NbHeure;
-
-            // Calculer la durée de la tâche à attribuer pour ce jour
-            var dureeTodo = Math.Min(disponibiliteTotale, dureeTacheRestante);
-
-            // Créer le Todo
-            var todo = new Todo
-            {
-                Nom = tache.Nom,
-                Duree = dureeTodo,
-                Date = lastTodoDate,
-                UtilisateurId = utilisateurId,
-                TacheId = tache.TacheId
-            };
-            todos.Add(todo);
-
-            // Mettre à jour la durée restante de la tâche
-            dureeTacheRestante -= dureeTodo;
-        }
 
         // Tant qu'il reste de la durée à attribuer à la tâche et qu'on n'a pas dépassé la deadline
         while (dureeTacheRestante > 0 && date <= tache.Deadline)
@@ -84,12 +50,20 @@ public IActionResult GenererTodos(int utilisateurId, [FromBody] string dateDemar
             // Obtenir l'index du jour de la semaine correspondant à la date actuelle
             var jourSemaine = ((int)date.DayOfWeek + 6) % 7; // Ajustement pour obtenir l'index correct du Lundi au Dimanche
             var disponibiliteJour = utilisateur.Disponibilites.ElementAt(jourSemaine);
-
+            var heureDisponibiliteRestante = disponibiliteJour.NbHeure;
+            if(todos.Count>0)
+            {
+                var lastTodo = todos[todos.Count - 1];
+                if(lastTodo.Date==date)
+                {
+                    heureDisponibiliteRestante -= lastTodo.Duree;
+                }
+            }
             // Vérifier si l'utilisateur a de la disponibilité pour ce jour
             if (disponibiliteJour.NbHeure > 0)
             {
-                // Calculer la durée du Todo pour ce jour
-                var dureeTodo = Math.Min(disponibiliteJour.NbHeure, dureeTacheRestante);
+                // Calculer la durée de la tâche à attribuer pour ce jour
+                var dureeTodo = Math.Min(heureDisponibiliteRestante, dureeTacheRestante);
 
                 // Créer le Todo
                 var todo = new Todo
@@ -105,10 +79,15 @@ public IActionResult GenererTodos(int utilisateurId, [FromBody] string dateDemar
 
                 // Mettre à jour la durée restante de la tâche
                 dureeTacheRestante -= dureeTodo;
-            }
 
-            // Passer au jour suivant
-            date = date.AddDays(1);
+                // Mettre à jour la disponibilité restante
+                heureDisponibiliteRestante -= dureeTodo;
+            }
+            if(dureeTacheRestante!=0 || heureDisponibiliteRestante == 0)
+            {
+                // Passer au jour suivant
+                date = date.AddDays(1);
+            }
         }
     }
 
@@ -118,6 +97,8 @@ public IActionResult GenererTodos(int utilisateurId, [FromBody] string dateDemar
 
     return Ok("Todos générés avec succès");
 }
+
+
 
 
 
