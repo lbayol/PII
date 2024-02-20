@@ -9,8 +9,10 @@ public class Todo
     public Tache Tache {get;set;}
     public int TacheId {get; set;}
     public bool Realisation {get; set;}
+    public int Rates {get; set;}
     public Todo()
     {
         Realisation = false;
+        Rates = 0;
     }
 }

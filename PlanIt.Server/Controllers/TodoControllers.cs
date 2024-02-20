@@ -98,6 +98,32 @@ public IActionResult GenererTodos(int utilisateurId, [FromBody] string dateDemar
     return Ok("Todos générés avec succès");
 }
 
+[HttpPut("{utilisateurId}/todos/{todoId}/changerRates")]
+public IActionResult ChangerRatesTodo(int utilisateurId, int todoId, [FromBody] int nouveauRates)
+{
+    var utilisateur = _context.Utilisateurs
+        .Include(u => u.Todos)
+        .FirstOrDefault(u => u.UtilisateurId == utilisateurId);
+
+    if (utilisateur == null)
+        return NotFound("Utilisateur non trouvé");
+
+    // Trouver la Todo correspondante dans la liste des Todos de l'utilisateur
+    var todo = utilisateur.Todos.FirstOrDefault(t => t.TodoId == todoId);
+
+    if (todo == null)
+        return NotFound("Todo non trouvé");
+
+    // Mettre à jour l'entier Rates de la Todo
+    todo.Rates = nouveauRates;
+
+    // Enregistrer les modifications dans la base de données
+    _context.SaveChanges();
+
+    return Ok("Rates de la Todo mis à jour avec succès");
+}
+
+
 
 
 

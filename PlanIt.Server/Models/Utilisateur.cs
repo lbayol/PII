@@ -12,10 +12,12 @@ public class Utilisateur
     public List<Disponibilite> Disponibilites {get; set;}
     public List<Tache> Taches {get;set;}
     public List<Todo> Todos {get;set;}
+    public int Note {get; set;}
     public Utilisateur()
     {
         Disponibilites = new List<Disponibilite>();
         Taches = new List<Tache>();
         Todos = new List<Todo>();
+        Note = 0;
     }
 }

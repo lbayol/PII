@@ -41,7 +41,7 @@ namespace PII.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("Deadline")
+                    b.Property<DateTimeOffset>("Deadline")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Duree")
@@ -51,7 +51,7 @@ namespace PII.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("UtilisateurId")
+                    b.Property<int>("UtilisateurId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("TacheId");
@@ -67,7 +67,7 @@ namespace PII.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("Date")
+                    b.Property<DateTimeOffset>("Date")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Duree")
@@ -76,6 +76,9 @@ namespace PII.Migrations
                     b.Property<string>("Nom")
                         .IsRequired()
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("Rates")
+                        .HasColumnType("INTEGER");
 
                     b.Property<bool>("Realisation")
                         .HasColumnType("INTEGER");
@@ -109,6 +112,9 @@ namespace PII.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("Note")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -135,9 +141,13 @@ namespace PII.Migrations
 
             modelBuilder.Entity("Tache", b =>
                 {
-                    b.HasOne("Utilisateur", null)
+                    b.HasOne("Utilisateur", "Utilisateur")
                         .WithMany("Taches")
-                        .HasForeignKey("UtilisateurId");
+                        .HasForeignKey("UtilisateurId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Utilisateur");
                 });
 
             modelBuilder.Entity("Todo", b =>

@@ -18,7 +18,8 @@ namespace PII.Migrations
                     Nom = table.Column<string>(type: "TEXT", nullable: false),
                     Prenom = table.Column<string>(type: "TEXT", nullable: false),
                     Email = table.Column<string>(type: "TEXT", nullable: false),
-                    Password = table.Column<string>(type: "TEXT", nullable: false)
+                    Password = table.Column<string>(type: "TEXT", nullable: false),
+                    Note = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -53,8 +54,8 @@ namespace PII.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     Nom = table.Column<string>(type: "TEXT", nullable: false),
                     Duree = table.Column<int>(type: "INTEGER", nullable: false),
-                    Deadline = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UtilisateurId = table.Column<int>(type: "INTEGER", nullable: true)
+                    Deadline = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
+                    UtilisateurId = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -63,7 +64,8 @@ namespace PII.Migrations
                         name: "FK_Taches_Utilisateurs_UtilisateurId",
                         column: x => x.UtilisateurId,
                         principalTable: "Utilisateurs",
-                        principalColumn: "UtilisateurId");
+                        principalColumn: "UtilisateurId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -74,10 +76,11 @@ namespace PII.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     Nom = table.Column<string>(type: "TEXT", nullable: false),
                     Duree = table.Column<int>(type: "INTEGER", nullable: false),
-                    Date = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Date = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
                     UtilisateurId = table.Column<int>(type: "INTEGER", nullable: false),
                     TacheId = table.Column<int>(type: "INTEGER", nullable: false),
-                    Realisation = table.Column<bool>(type: "INTEGER", nullable: false)
+                    Realisation = table.Column<bool>(type: "INTEGER", nullable: false),
+                    Rates = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
