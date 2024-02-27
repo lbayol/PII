@@ -8,109 +8,99 @@
   
   .connexion .div {
     background-color: #fffcf7;
-    height: 896px;
+    height: 100%;
     position: relative;
-    width: 414px;
+    width: 100%;
   }
   
   .connexion .overlap {
-    height: 266px;
+    height: 30%;
     left: 3px;
     position: absolute;
     top: 0;
-    width: 411px;
+    width: 100%;
   }
   
   .connexion .text-wrapper {
     color: #2d544a;
     font-family: "Jost-SemiBold", Helvetica;
-    font-size: 42px;
+    font-size: 5vh;
     font-weight: 600;
-    left: 0;
-    letter-spacing: 0;
     line-height: normal;
     position: absolute;
     text-align: center;
-    top: 2px;
     white-space: nowrap;
-    width: 133px;
+    width: 32%;
   }
   
   .connexion .overlap-group {
-    height: 266px;
-    left: 34px;
+    height: 29.69%;
+    left: 8.21%;
     position: absolute;
-    top: 0;
-    width: 377px;
+    width: 91%;
   }
   
   .connexion .text-wrapper-2 {
     color: #2d544a;
     font-family: "Jost-Medium", Helvetica;
-    font-size: 60px;
+    font-size: 7vh;
     font-weight: 500;
-    left: 0;
-    letter-spacing: 0;
     line-height: normal;
     position: absolute;
     text-align: center;
-    top: 165px;
-    width: 340px;
+    top: 5500%;
+    width: 92%;
   }
   
   .connexion .forme {
-    height: 166px;
-    left: 205px;
+    left: 65%;
     position: absolute;
-    top: 0;
-    width: 176px;
+    width: 40%;
   }
   
   .connexion .text-wrapper-3 {
     color: #2d544a;
     font-family: "Jost-Medium", Helvetica;
-    font-size: 30px;
+    font-size: 3.5vh;
     font-weight: 500;
-    letter-spacing: 0;
     line-height: normal;
     position: relative;
     text-align: center;
-    top: 267px;
+    top: 8.5em;
     white-space: nowrap;
-    width: 220px;
+    width: 53%;
     margin-left: auto;
     margin-right: auto;
   }
   
   .connexion .overlap-2 {
-    height: 334px;
+    height: 37.3%;
     left: 0;
     position: absolute;
-    top: 338px;
-    width: 373px;
+    top: 1000%;
+    width: 100%;
   }
   
   .connexion .overlap-3 {
-    height: 334px;
+    height: 37.28%;
     left: 0;
     position: absolute;
     top: 0;
-    width: 373px;
+    width: 90%;
   }
   
   .connexion .text-wrapper-4 {
     color: #2d544a;
     font-family: "Jost-Medium", Helvetica;
-    font-size: 24px;
+    font-size: 1.5em;
     font-weight: 500;
-    height: 43px;
-    left: 115px;
-    letter-spacing: 0;
+    height: 4.8%;
+    left: 30%;
     line-height: normal;
     position: absolute;
     text-align: right;
-    top: 200px;
-    width: 149px;
+    top: 4100%;
+    width: 40%;
   }
   
   .connexion .error-message {
@@ -123,13 +113,12 @@
     position : center;
     color: #d93232;
     font-family: "Jost-Medium", Helvetica;
-    font-size: 15px;
+    font-size: 1em;
     font-weight: 500;
-    letter-spacing: 0;
     line-height: normal;
     text-align: center;
-    margin-top: 45px;
-    padding : 3px;
+    margin-top: 12%;
+    padding : 1%;
   }
   
   .connexion .error-message2 {
@@ -142,72 +131,49 @@
     position : center;
     color: #d93232;
     font-family: "Jost-Medium", Helvetica;
-    font-size: 15px;
+    font-size: 1em;
     font-weight: 500;
     letter-spacing: 0;
     line-height: normal;
     text-align: center;
-    margin-top: 15px;
-    padding : 3px;
+    margin-top: 12%;
+    padding : 1%;
   }
   
   .connexion .img {
-    height: 309px;
+    height: 5500%;
     left: 0;
     position: absolute;
     top: 0;
-    margin-top: 240px;
-    margin-left: -30px;
-    width: 157px;
+    margin-top: 80%;
+    margin-left: -10%;
+    width: 43%;
   }
   
   .connexion .frame {
     align-items: center;
     display: flex;
     flex-direction: column;
-    gap: 50px;
-    height: 251px;
-    left: 40px;
+    gap: 20%;
+    height: 5000%;
+    left: 11%;
     position: absolute;
-    top: 15px;
-    width: 333px;
+    top: 200%;
+    width: 90%;
   }
   
   .connexion .bouton-mail-mdp {
-    height: 31px;
+    height: 15%;
     position: relative;
-    width: 300px;
+    width: 92%;
   }
   
   .connexion .overlap-group-2 {
     background-color: #fffcf7;
     border-radius: 5px;
     box-shadow: 0px 2px 5px #00000040;
-    height: 31px;
+    height: 75%;
     position: relative;
-  }
-  
-  .connexion .text-wrapper-5 {
-    color: #2d544a;
-    font-family: "Jost-Light", Helvetica;
-    font-size: 21px;
-    font-weight: 300;
-    height: 23px;
-    left: 30px;
-    letter-spacing: 0;
-    line-height: normal;
-    position: absolute;
-    top: 3px;
-    white-space: nowrap;
-    width: 66px;
-  }
-  
-  .connexion .prenom {
-    height: 20px;
-    left: 4px;
-    position: absolute;
-    top: 6px;
-    width: 20px;
   }
   
   .connexion .rectangle {
@@ -216,23 +182,23 @@
     border-color: #000000;
     border-radius: 5px;
     box-shadow: 0px 2px 5px #00000040;
-    height: 31px;
+    height: 80%;
     left: 0;
     position: absolute;
     top: 0;
-    width: 300px;
+    width: 92%;
   }
   .connexion .text-wrapper-9 {
     color: #2d544a;
     font-family: "Jost-Light", Helvetica;
-    font-size: 21px;
+    font-size: 1.3em;
     font-weight: 300;
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
     white-space: nowrap;
-    width: 270px;
-    padding-left: 30px;
+    width: 88%;
+    padding-left: 10%;
   }
   
   .connexion .text-wrapper-9::placeholder {
@@ -244,97 +210,84 @@
   }
   
   .connexion .img-2 {
-    height: 19px;
-    left: 4px;
+    height: 100%;
+    left: 2%;
     position: absolute;
-    top: 6px;
-    width: 20px;
-  }
-  
-  .connexion .text-wrapper-6 {
-    color: #2d544a;
-    font-family: "Jost-Light", Helvetica;
-    font-size: 21px;
-    font-weight: 300;
-    height: 23px;
-    left: 30px;
-    letter-spacing: 0;
-    line-height: normal;
-    position: absolute;
-    top: 3px;
-    white-space: nowrap;
-    width: 223px;
+    top: -6%;
+    width: 6%;
   }
   
   .connexion .mail-outlined {
-    height: 16px;
-    left: 4px;
+    height: 100%;
+    left: 2%;
     position: absolute;
-    top: 8px;
-    width: 20px;
+    top: -6%;
+    width: 6%;
   }
   
   .connexion .vector-wrapper {
     background-color: #2d544a;
     border-radius: 10px;
     box-shadow: inset 0px 4px 4px #ffffff1a;
-    height: 36px;
-    left: 271px;
+    height: 270%;
+    left: 67%;
     position: absolute;
-    top: 198px;
-    width: 66px;
+    top: 1500%;
+    width: 16%;
   }
   
   .connexion .vector {
-    height: 90px;
-    left: 10px;
+    height: 200%;
+    left: 13%;
     position: absolute;
-    top: -16px;
-    width: 53px;
+    top: -10%;
+    width: 90%;
   }
   
   .connexion .text-wrapper-7 {
     color: #2d544a;
     font-family: "Jost-Regular", Helvetica;
-    font-size: 24px;
+    font-size: 1.5em;
     font-weight: 400;
-    height: 32px;
-    left: 136px;
+    height: 30%;
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
     text-align: center;
     text-decoration: underline;
-    top: 802px;
-    width: 142px;
+    top: 2250%;
+    width: 100%;
   }
   
   .connexion .text-wrapper-8 {
     color: #2d544a;
     font-family: "Jost-Regular", Helvetica;
-    font-size: 24px;
+    font-size: 1.5em;
     font-weight: 400;
-    left: 105px;
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
     text-align: center;
-    top: 757px;
-    width: 203px;
+    top: 2100%;
+    width: 100%;
   }
   
   input::placeholder {
     color: #2d544a;
     font-family: "Jost-Light", Helvetica;
-    font-size: 21px;
+    font-size: 1em;
     font-weight: 300;
-    height: 23px;
-    left: 30px;
+    height: 100%;
+    left: 10%;
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
-    top: 3px;
+    top: 10%;
     white-space: nowrap;
     width: auto;
+  }
+  
+  body {
+    overflow: hidden;
   }
   

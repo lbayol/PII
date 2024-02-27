@@ -140,7 +140,6 @@ const [showError, setShowError] = useState(false);
       </div>
 
       <div className="bouton-mail-mdp">
-        <div className="overlap-group-2">
           <input
             type="password"
             placeholder="Mot de passe"
@@ -149,8 +148,7 @@ const [showError, setShowError] = useState(false);
             onChange={(e) => setMdp(e.target.value)}
           />
           <img className="img-2" alt="Cadenas" src={imcadenas} />
-        </div>
-        {errors.password && <div className="error-message2">{errors.password}</div>}
+        {errors.password && <div className="error-message">{errors.password}</div>}
       </div>
     </div>
           </div>

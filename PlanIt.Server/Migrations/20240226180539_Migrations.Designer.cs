@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace PII.Migrations
 {
     [DbContext(typeof(PlanItContext))]
-    [Migration("20240220185719_Migrations")]
+    [Migration("20240226180539_Migrations")]
     partial class Migrations
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -100,6 +100,38 @@ namespace PII.Migrations
                     b.ToTable("Todos");
                 });
 
+            modelBuilder.Entity("TodoGET", b =>
+                {
+                    b.Property<int>("TodoId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset>("Date")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Duree")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Nom")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Rates")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Realisation")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("UtilisateurId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("TodoId");
+
+                    b.HasIndex("UtilisateurId");
+
+                    b.ToTable("TodoGET");
+                });
+
             modelBuilder.Entity("Utilisateur", b =>
                 {
                     b.Property<int>("UtilisateurId")
@@ -161,7 +193,7 @@ namespace PII.Migrations
                         .IsRequired();
 
                     b.HasOne("Utilisateur", "Utilisateur")
-                        .WithMany("Todos")
+                        .WithMany()
                         .HasForeignKey("UtilisateurId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -169,6 +201,13 @@ namespace PII.Migrations
                     b.Navigation("Tache");
 
                     b.Navigation("Utilisateur");
+                });
+
+            modelBuilder.Entity("TodoGET", b =>
+                {
+                    b.HasOne("Utilisateur", null)
+                        .WithMany("Todos")
+                        .HasForeignKey("UtilisateurId");
                 });
 
             modelBuilder.Entity("Utilisateur", b =>

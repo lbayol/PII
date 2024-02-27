@@ -11,13 +11,13 @@ public class Utilisateur
     public string Password { get; set; }
     public List<Disponibilite> Disponibilites {get; set;}
     public List<Tache> Taches {get;set;}
-    public List<Todo> Todos {get;set;}
+    public List<TodoGET> Todos {get;set;}
     public int Note {get; set;}
     public Utilisateur()
     {
         Disponibilites = new List<Disponibilite>();
         Taches = new List<Tache>();
-        Todos = new List<Todo>();
+        Todos = new List<TodoGET>();
         Note = 0;
     }
 }

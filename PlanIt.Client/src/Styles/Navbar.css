@@ -1,0 +1,13 @@
+.bottom-nav {
+    position:fixed;
+    bottom: 0;
+    width: 100%;
+  }
+
+  .bottom-nav .active {
+    color: #509583 !important;
+  }
+  
+  .bottom-nav .inactive {
+    color: #2d544a !important;
+  }

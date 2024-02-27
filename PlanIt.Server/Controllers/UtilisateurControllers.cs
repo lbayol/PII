@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using BCrypt;
 using Microsoft.AspNetCore.Cors;
 
+
 namespace PlanIt.Controllers
 {
     [ApiController]
@@ -16,12 +17,13 @@ namespace PlanIt.Controllers
             _context = context;
         }
 
-[HttpGet("{id}")]
+[HttpGet("infos/{id}")]
 public IActionResult GetUtilisateurById(int id)
 {
     var utilisateur = _context.Utilisateurs
                               .Include(u => u.Disponibilites)
                               .Include(u => u.Taches)
+                              .Include(u => u.Todos)
                               .FirstOrDefault(u => u.UtilisateurId == id);
 
     if (utilisateur == null)
@@ -31,6 +33,7 @@ public IActionResult GetUtilisateurById(int id)
 
     return Ok(utilisateur);
 }
+
 
 
 
@@ -92,14 +95,21 @@ public IActionResult Connexion([FromBody] UtilisateurConnexionDTO connexionDTO)
     return BadRequest("L'authentification a échoué.");
 }
 
-[HttpGet("Utilisateur/{Email}")]
-public IActionResult GetUserInfo(string Email)
+[HttpGet("infosConnexion")]
+public IActionResult GetUtilisateurByEmail(string email)
 {
-    var utilisateur = _context.Utilisateurs.FirstOrDefault(u => u.Email == Email);
-    if (utilisateur == null)
-        return NotFound("Utilisateur non trouvé");
+    var utilisateur = _context.Utilisateurs
+                              .Include(u => u.Disponibilites)
+                              .Include(u => u.Taches)
+                              .Include(u => u.Todos)
+                              .FirstOrDefault(u => u.Email == email);
 
-    return Ok(new { Prenom = utilisateur.Prenom, Nom = utilisateur.Nom });
+    if (utilisateur == null)
+    {
+        return NotFound("Utilisateur non trouvé.");
+    }
+
+    return Ok(utilisateur);
 }
 
 [HttpPut("UpdateDisponibilités/{id}")]
@@ -159,7 +169,7 @@ public IActionResult UpdateUserNote(int id)
     foreach (var tache in utilisateur.Taches)
     {
         // Trouver la todo associée à cette tâche avec la date la plus récente
-        var todoAssociee = utilisateur.Todos.Where(t => t.TacheId == tache.TacheId)
+        var todoAssociee = utilisateur.Todos.Where(t => t.Nom == tache.Nom)
                                             .OrderByDescending(t => t.Date)
                                             .FirstOrDefault();
 

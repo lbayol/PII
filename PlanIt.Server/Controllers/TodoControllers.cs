@@ -74,9 +74,17 @@ public IActionResult GenererTodos(int utilisateurId, [FromBody] string dateDemar
                     UtilisateurId = utilisateurId,
                     TacheId = tache.TacheId
                 };
-
+                var todoGET = new TodoGET
+                {
+                    TodoId = todo.TodoId,
+                    Nom = todo.Nom,
+                    Duree = todo.Duree,
+                    Date = todo.Date,
+                    Realisation = todo.Realisation,
+                    Rates = todo.Rates
+                };
                 todos.Add(todo);
-
+                utilisateur.Todos.Add(todoGET);
                 // Mettre à jour la durée restante de la tâche
                 dureeTacheRestante -= dureeTodo;
 
@@ -100,7 +108,6 @@ public IActionResult GenererTodos(int utilisateurId, [FromBody] string dateDemar
     return Ok("Todos générés avec succès");
 }
 
-
 [HttpPut("{utilisateurId}/todos/{todoId}/changerRates")]
 public IActionResult ChangerRatesTodo(int utilisateurId, int todoId, [FromBody] int nouveauRates)
 {
@@ -117,7 +124,16 @@ public IActionResult ChangerRatesTodo(int utilisateurId, int todoId, [FromBody] 
     if (todo == null)
         return NotFound("Todo non trouvé");
 
-    // Mettre à jour l'entier Rates de la Todo
+    // Trouver la Todo correspondante dans le contexte de la base de données
+    var todoEntity = _context.Todos.FirstOrDefault(t => t.TodoId == todoId);
+
+    if (todoEntity == null)
+        return NotFound("Todo non trouvé");
+
+    // Mettre à jour l'entier Rates de la Todo dans le contexte de la base de données
+    todoEntity.Rates = nouveauRates;
+
+    // Mettre à jour le nombre de ratés dans la liste de TodoGET de l'utilisateur
     todo.Rates = nouveauRates;
 
     // Enregistrer les modifications dans la base de données
@@ -125,6 +141,8 @@ public IActionResult ChangerRatesTodo(int utilisateurId, int todoId, [FromBody] 
 
     return Ok("Rates de la Todo mis à jour avec succès");
 }
+
+
 
 [HttpPut("todos/{todoId}/marquerRéalisé")]
 public IActionResult MarquerTodoRéalisé(int todoId)
@@ -138,30 +156,60 @@ public IActionResult MarquerTodoRéalisé(int todoId)
     // Mettre à jour le booléen Realisation de la Todo à true
     todo.Realisation = true;
 
+    // Mettre à jour le booléen Realisation dans la liste de TodoGET de l'utilisateur
+    var utilisateur = _context.Utilisateurs
+        .Include(u => u.Todos)
+        .FirstOrDefault(u => u.Todos.Any(t => t.TodoId == todoId));
+
+    if (utilisateur != null)
+    {
+        var todoGET = utilisateur.Todos.FirstOrDefault(t => t.TodoId == todoId);
+        if (todoGET != null)
+        {
+            todoGET.Realisation = true;
+        }
+    }
+
     // Enregistrer les modifications dans la base de données
     _context.SaveChanges();
 
     return Ok("Todo marqué comme réalisé avec succès");
 }
 
-        [HttpDelete("{utilisateurId}/supprimerTodos")]
-        public IActionResult SupprimerTodos(int utilisateurId)
+
+[HttpDelete("{utilisateurId}/supprimerTodos")]
+public IActionResult SupprimerTodos(int utilisateurId)
+{
+    var utilisateur = _context.Utilisateurs
+        .Include(u => u.Todos)
+        .FirstOrDefault(u => u.UtilisateurId == utilisateurId);
+
+    if (utilisateur == null)
+        return NotFound("Utilisateur non trouvé");
+
+    // Supprimer chaque TodoGET individuellement
+    foreach (var todoGET in utilisateur.Todos.ToList())
+    {
+        utilisateur.Todos.Remove(todoGET);
+
+        // Rechercher la Todo correspondante dans le contexte de la base de données et la supprimer
+        var todoToRemove = _context.Todos.Find(todoGET.TodoId);
+        if (todoToRemove != null)
         {
-            var utilisateur = _context.Utilisateurs
-                .Include(u => u.Todos)
-                .FirstOrDefault(u => u.UtilisateurId == utilisateurId);
-
-            if (utilisateur == null)
-                return NotFound("Utilisateur non trouvé");
-
-            // Supprimer tous les Todos liés à l'utilisateur
-            _context.Todos.RemoveRange(utilisateur.Todos);
-            _context.SaveChanges();
-
-            return Ok("Tous les Todos de l'utilisateur ont été supprimés avec succès");
+            _context.Todos.Remove(todoToRemove);
         }
+    }
+    
+    _context.SaveChanges();
 
-        [HttpPost("regenererTodos/{todoId}")]
+    return Ok("Tous les Todos de l'utilisateur ont été supprimés avec succès");
+}
+
+
+
+
+
+[HttpPost("regenererTodos/{todoId}")]
 public IActionResult RegenererTodos(int todoId)
 {
     // Récupérer la Todo à partir de son ID
@@ -200,15 +248,48 @@ public IActionResult RegenererTodos(int todoId)
             tache.Duree += todoToRegenerate.Duree;
 
             // Supprimer la Todo
-            _context.Todos.Remove(todoToRegenerate);
+            var todoToRemove = _context.Todos.Find(todoToRegenerate.TodoId);
+            if (todoToRemove != null)
+            {
+                _context.Todos.Remove(todoToRemove);
+                
+                // Supprimer également la TodoGET correspondante dans la liste de TodoGET de l'utilisateur
+                utilisateur.Todos.Remove(todoToRegenerate);
+            }
         }
     }
 
     _context.SaveChanges(); // Enregistrer les modifications sur les durées des tâches et la suppression des Todos
 
     // Appeler la méthode GenererTodos pour générer les Todos à partir de la date de la Todo
-    return GenererTodos(utilisateur.UtilisateurId, dateDemarrage.ToString("dd-MM-yyyy"));
+    var result = GenererTodos(utilisateur.UtilisateurId, dateDemarrage.ToString("dd-MM-yyyy"));
+
+   // Récupérer tous les Todos non réalisés dans la liste TodoGET de l'utilisateur
+var todosToIncrementRates = utilisateur.Todos
+    .Where(t => t.Date.Date == dateDemarrage.Date && !t.Realisation)
+    .ToList();
+
+// Incrémenter le nombre de ratés des Todos dans la liste TodoGET de l'utilisateur et dans la table Todos
+foreach (var todoToIncrementRates in todosToIncrementRates)
+{
+    todoToIncrementRates.Rates++;
+
+    // Récupérer la Todo correspondante dans la table Todos et incrémenter son nombre de ratés
+    var todoEntity = _context.Todos.Find(todoToIncrementRates.TodoId);
+    if (todoEntity != null)
+    {
+        todoEntity.Rates++;
+    }
 }
+
+// Enregistrer les modifications sur les nombres de ratés dans la table Todos
+_context.SaveChanges();
+
+    return result;
+}
+
+
+
 
 
     }

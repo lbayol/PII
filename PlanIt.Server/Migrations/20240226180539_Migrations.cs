@@ -69,6 +69,29 @@ namespace PII.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "TodoGET",
+                columns: table => new
+                {
+                    TodoId = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Nom = table.Column<string>(type: "TEXT", nullable: false),
+                    Duree = table.Column<int>(type: "INTEGER", nullable: false),
+                    Date = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
+                    Realisation = table.Column<bool>(type: "INTEGER", nullable: false),
+                    Rates = table.Column<int>(type: "INTEGER", nullable: false),
+                    UtilisateurId = table.Column<int>(type: "INTEGER", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TodoGET", x => x.TodoId);
+                    table.ForeignKey(
+                        name: "FK_TodoGET_Utilisateurs_UtilisateurId",
+                        column: x => x.UtilisateurId,
+                        principalTable: "Utilisateurs",
+                        principalColumn: "UtilisateurId");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Todos",
                 columns: table => new
                 {
@@ -110,6 +133,11 @@ namespace PII.Migrations
                 column: "UtilisateurId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_TodoGET_UtilisateurId",
+                table: "TodoGET",
+                column: "UtilisateurId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Todos_TacheId",
                 table: "Todos",
                 column: "TacheId");
@@ -124,6 +152,9 @@ namespace PII.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Disponibilite");
+
+            migrationBuilder.DropTable(
+                name: "TodoGET");
 
             migrationBuilder.DropTable(
                 name: "Todos");
