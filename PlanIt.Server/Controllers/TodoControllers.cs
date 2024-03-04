@@ -18,9 +18,10 @@ namespace PlanIt.Controllers
             _context = context;
         }
 
-[HttpPost("{utilisateurId}/genererTodos")]
+        [HttpPost("{utilisateurId}/genererTodos")]
 public IActionResult GenererTodos(int utilisateurId, [FromBody] string dateDemarrageString)
 {
+    Console.WriteLine("Date de démarrage reçue depuis le frontend : " + dateDemarrageString);
     // Convertir la chaîne de date en DateTimeOffset avec le format spécifié
     if (!DateTimeOffset.TryParseExact(dateDemarrageString, "dd-MM-yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTimeOffset dateDemarrage))
     {

@@ -46,9 +46,14 @@ export const Connexion = () => {
         Password: password,
       });
       console.log(response.data);
-      const userInfoResponse = await axios.get(`http://localhost:5035/api/utilisateur/Utilisateur/${email}`);
+      const userInfoResponse = await axios.get(`http://localhost:5035/api/utilisateur/infosConnexion?email=${email}`);
+      console.log(userInfoResponse.data);
       const Prenom = userInfoResponse.data.prenom;
       const Nom = userInfoResponse.data.nom;
+      const Disponibilites = userInfoResponse.data.disponibilites;
+      const Todos = userInfoResponse.data.todos;
+      const Taches = userInfoResponse.data.taches;
+      const IdUtilisateur = userInfoResponse.data.utilisateurId;
       console.log(userInfoResponse);
       console.log(userInfoResponse.data);
       console.log(Prenom);
@@ -61,6 +66,10 @@ export const Connexion = () => {
         // Stoker les informations dans le localStorage
         localStorage.setItem('prenom', Prenom);
         localStorage.setItem('nom', Nom);
+        localStorage.setItem('disponibilites', Disponibilites);
+        localStorage.setItem('todos', Todos);
+        localStorage.setItem('taches', Taches);
+        localStorage.setItem('idutilisateur', IdUtilisateur);
 
         navigate('/compte'); // Rediriger vers la page du compte
       } else {

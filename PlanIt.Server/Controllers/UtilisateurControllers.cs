@@ -96,7 +96,7 @@ public IActionResult Connexion([FromBody] UtilisateurConnexionDTO connexionDTO)
 }
 
 [HttpGet("infosConnexion")]
-public IActionResult GetUtilisateurByEmail(string email)
+public IActionResult GetUtilisateurByEmail([FromQuery] string email)
 {
     var utilisateur = _context.Utilisateurs
                               .Include(u => u.Disponibilites)
@@ -112,12 +112,13 @@ public IActionResult GetUtilisateurByEmail(string email)
     return Ok(utilisateur);
 }
 
+
 [HttpPut("UpdateDisponibilités/{id}")]
-public IActionResult PutDisponibilitesUtilisateur(int id, [FromBody] UtilisateurPUTDisponibiliteDTO utilisateurDTO)
+public IActionResult PutDisponibilitesUtilisateur(int id, [FromBody] List<int> disponibilitesData)
 {
-    if (utilisateurDTO == null || id != utilisateurDTO.UtilisateurId)
+    if (disponibilitesData == null)
     {
-        return BadRequest("Les données de l'utilisateur ou l'ID ne correspondent pas.");
+        return BadRequest("Les données de disponibilités sont manquantes.");
     }
 
     var utilisateur = _context.Utilisateurs.Include(u => u.Disponibilites).FirstOrDefault(u => u.UtilisateurId == id);
@@ -128,7 +129,7 @@ public IActionResult PutDisponibilitesUtilisateur(int id, [FromBody] Utilisateur
     }
 
     // Assurez-vous que le nombre de disponibilités envoyées est correct
-    if (utilisateurDTO.Disponibilites.Count != utilisateur.Disponibilites.Count)
+    if (disponibilitesData.Count != utilisateur.Disponibilites.Count)
     {
         return BadRequest("Le nombre de disponibilités envoyées est incorrect.");
     }
@@ -136,13 +137,14 @@ public IActionResult PutDisponibilitesUtilisateur(int id, [FromBody] Utilisateur
     // Mettre à jour les disponibilités de l'utilisateur
     for (int i = 0; i < utilisateur.Disponibilites.Count; i++)
     {
-        utilisateur.Disponibilites[i].NbHeure = utilisateurDTO.Disponibilites[i];
+        utilisateur.Disponibilites[i].NbHeure = disponibilitesData[i];
     }
 
     _context.SaveChanges();
 
     return Ok(utilisateur);
 }
+
 
 [HttpPut("UpdateNote/{id}")]
 public IActionResult UpdateUserNote(int id)
