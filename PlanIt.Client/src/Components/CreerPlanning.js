@@ -1,97 +1,131 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import moment from 'moment'; // Importer moment.js
+import moment from 'moment';
 import Navbar from "./Navbar";
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
 
-// Composant pour représenter les entrées d'une tâche
 const TacheInput = ({ index }) => (
   <div>
     Tâche {index} :
     <br />
     Nom
-    <input id={`nomTache${index}`}></input>
+    <input id={`nomTache${index}`} />
     <br />
     Durée en heure
-    <input id={`dureeTache${index}`}></input>
+    <input id={`dureeTache${index}`} />
     <br />
     Deadline
-    <input id={`deadlineTache${index}`}></input>
+    <input id={`deadlineTache${index}`} placeholder="dd-mm-yyyy" />
     <br />
   </div>
 );
 
+const isValidDate = (dateString) => {
+  const dateRegex = /^\d{2}-\d{2}-\d{4}$/;
+
+  if (!dateRegex.test(dateString)) {
+    return false;
+  }
+
+  const [day, month, year] = dateString.split('-').map(Number);
+
+  if (month < 1 || month > 12 || day < 1) {
+    return false;
+  }
+
+  const daysInMonth = new Date(year, month, 0).getDate();
+
+  return day <= daysInMonth;
+};
+
 export const CreerPlanning = () => {
+  const [errorMessage, setErrorMessage] = useState("");
+  const [nombreTaches, setNombreTaches] = useState(1);
+  const [dateDemarrage, setDateDemarrage] = useState("");
   const prenom = localStorage.getItem('prenom');
   const nom = localStorage.getItem('nom');
+  const email = localStorage.getItem('email');
   const idutilisateur = parseInt(localStorage.getItem('idutilisateur'));
-  const navigate = useNavigate();
-
-  const [nombreTaches, setNombreTaches] = useState(1);
 
   useEffect(() => {
     if (!prenom || !nom || !idutilisateur) {
-      navigate('/connexion');
+      // Rediriger vers la page de connexion si les informations ne sont pas disponibles
+      window.location.href = '/connexion';
     }
   }, []);
-  console.log(idutilisateur);
-  console.log(prenom);
-  console.log(nom);
-  const [dateDemarrage, setDateDemarrage] = useState(null);
-  const handleDateChange = (date) => {
-    setDateDemarrage(date);
-  };
 
   const updateDisponibilites = (disponibilitesData) => {
-    axios.put(`http://localhost:5035/api/utilisateur/UpdateDisponibilités/${idutilisateur}`, disponibilitesData)
-      .then(response => {
-        console.log("Disponibilités mises à jour avec succès :", response.data);
-      })
-      .catch(error => {
-        console.error("Erreur lors de la mise à jour des disponibilités :", error);
-      });
-  };
+    return new Promise((resolve, reject) => {
+        axios.put(`http://localhost:5035/api/utilisateur/UpdateDisponibilités/${idutilisateur}`, disponibilitesData)
+            .then(response => {
+                console.log("Disponibilités mises à jour avec succès :", response.data);
+                resolve(response.data);
+            })
+            .catch(error => {
+                console.error("Erreur lors de la mise à jour des disponibilités :", error);
+                reject(error);
+            });
+    });
+};
+
 
   const creerTache = (tachesData) => {
-    axios.post(`http://localhost:5035/api/utilisateur/${idutilisateur}/tache`, tachesData)
+    console.log("tacheData :", tachesData);
+    return axios.post(`http://localhost:5035/api/utilisateur/${idutilisateur}/tache`, tachesData)
       .then(response => {
         console.log("Tâches créées avec succès :", response.data);
+        return response.data; // retourner les données de la tâche créée
       })
       .catch(error => {
         console.error("Erreur lors de la création des tâches :", error);
+        throw error; // propager l'erreur pour la gérer plus tard si nécessaire
       });
   };
 
   const genererTodos = (dateDemarrage) => {
-    // Formatage de la date au format "dd-MM-yyyy"
-    const formattedDate = moment(dateDemarrage).format("dd-MM-yyyy");
-
-    // Envoyer la requête POST avec les données formatées
-    axios.post(`http://localhost:5035/api/utilisateur/${idutilisateur}/genererTodos`, formattedDate)
+    return new Promise((resolve, reject) => {
+        const formattedDate = moment(dateDemarrage, "DD-MM-YYYY").format("DD-MM-YYYY");
+        axios.post(`http://localhost:5035/api/utilisateur/${idutilisateur}/genererTodos`, `"${formattedDate}"`, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
         .then(response => {
             console.log("Todos générés avec succès :", response.data);
-            return response.data;
+            resolve(response.data);
         })
         .catch(error => {
             console.error('Erreur lors de la génération des Todos:', error);
-            throw error;
+            reject(error);
         });
+    });
 };
 
 
+const updateNoteUtilisateur = (idUtilisateur) => {
+  return new Promise((resolve, reject) => {
+      axios.put(`http://localhost:5035/api/utilisateur/UpdateNote/${idUtilisateur}`)
+          .then(response => {
+              console.log("Note de l'utilisateur mise à jour avec succès :", response.data);
+              resolve(response.data);
+          })
+          .catch(error => {
+              console.error("Erreur lors de la mise à jour de la note de l'utilisateur :", error);
+              reject(error);
+          });
+  });
+};
 
+const supprimerTodos = async (utilisateurId) => {
+  try {
+    const response = await axios.delete(`http://localhost:5035/api/utilisateur/${utilisateurId}/supprimerTodos`);
+    console.log(response.data);
+  } catch (error) {
+    console.error("Erreur lors de la suppression des Todos :", error);
+    throw error;
+  }
+};
 
-
-
-
-
-
-  
-  
-
-  const handleCreate = () => {
+  const handleCreate = async () => {
     const lundiInput = document.getElementById('lundi');
     const mardiInput = document.getElementById('mardi');
     const mercrediInput = document.getElementById('mercredi');
@@ -99,48 +133,205 @@ export const CreerPlanning = () => {
     const vendrediInput = document.getElementById('vendredi');
     const samediInput = document.getElementById('samedi');
     const dimancheInput = document.getElementById('dimanche');
+    const inputsNomTache = document.querySelectorAll('[id^=nomTache]');
+    const inputsDuréeTache = document.querySelectorAll('[id^=dureeTache]');
+    const inputsDeadlineTache = document.querySelectorAll('[id^=deadlineTache]');
+    let dureeTotaleTaches = 0;
 
-    // Vérifier si les éléments existent avant d'accéder à leurs valeurs
+    const validateInputs = (inputs) => {
+        for (let i = 0; i < inputs.length; i++) {
+            if (!Number.isInteger(parseInt(inputs[i].value))) {
+                setErrorMessage("Veuillez saisir des nombres entiers dans tous les champs.");
+                return false;
+            }
+        }
+        return true;
+    };
 
-    const disponibilitesData = [
-      parseInt(lundiInput.value),
-      parseInt(mardiInput.value),
-      parseInt(mercrediInput.value),
-      parseInt(jeudiInput.value),
-      parseInt(vendrediInput.value),
-      parseInt(samediInput.value),
-      parseInt(dimancheInput.value)
-    ];
-
-    updateDisponibilites(disponibilitesData);
-
-    // Appeler la fonction creerTache dans la boucle
-    for (let i = 0; i < nombreTaches; i++) {
-      const nomInput = document.getElementById(`nomTache${i}`);
-      const dureeInput = document.getElementById(`dureeTache${i}`);
-      const deadlineInput = document.getElementById(`deadlineTache${i}`);
-
-      // Vérifier si les éléments existent avant d'accéder à leurs valeurs
-      if (nomInput && dureeInput && deadlineInput) {
-        const tacheData = {
-          nom: nomInput.value,
-          duree: dureeInput.value,
-          deadline: deadlineInput.value
-        };
-
-        // Appeler la fonction creerTache avec les données de la tâche actuelle
-        creerTache(tacheData);
-      }
+    if (!dateDemarrage) {
+        setErrorMessage("Veuillez saisir une date de démarrage.");
+        return;
     }
 
-    if (dateDemarrage) {
-      const formattedDate = moment(dateDemarrage).format("dd-MM-yyyy");
-      genererTodos(formattedDate);
+    if (!isValidDate(dateDemarrage)) {
+        setErrorMessage("Format de date incorrect pour la date de démarrage. Veuillez utiliser le format dd-mm-yyyy.");
+        return;
+    } else {
+        setErrorMessage("");
+    }
+
+    if (!validateInputs([lundiInput, mardiInput, mercrediInput, jeudiInput, vendrediInput, samediInput, dimancheInput, ...inputsDuréeTache,])) {
+        setErrorMessage("Veuillez saisir des nombres entiers dans tous les champs.");
+        return;
+    } else {
+        setErrorMessage("");
+    }
+
+    for (let i = 1; i <= nombreTaches; i++) {
+        const nomInput = document.getElementById(`nomTache${i}`);
+        if (!nomInput.value.trim()) {
+            setErrorMessage("Veuillez remplir tous les champs 'Nom' des tâches.");
+            return;
+        }
+    }
+
+    const tachesTriees = [];
+    for (let i = 1; i <= nombreTaches; i++) {
+        const tache = {
+            nom: document.getElementById(`nomTache${i}`).value,
+            duree: parseInt(document.getElementById(`dureeTache${i}`).value),
+            deadline: moment(document.getElementById(`deadlineTache${i}`).value, "DD-MM-YYYY").toDate()
+        };
+        tachesTriees.push(tache);
+    }
+    tachesTriees.sort((a, b) => a.deadline - b.deadline);
+    console.log("taches triées : ",tachesTriees);
+
+    const disponibilites = [parseInt(lundiInput.value), parseInt(mardiInput.value), parseInt(mercrediInput.value), parseInt(jeudiInput.value), parseInt(vendrediInput.value), parseInt(samediInput.value), parseInt(dimancheInput.value)];
+    for (let i = 0; i < disponibilites.length; i++) {
+      if (disponibilites[i] < 0) {
+          setErrorMessage(`Les disponibilités du jour ${i + 1} ne sont pas suffisantes pour les tâches.`);
+          return;
+      }
+  }
+
+  // Mise à jour des disponibilités
+  await updateDisponibilites(disponibilites);
+
+  for (let i = 1; i <= nombreTaches; i++) {
+    const deadlineTache = moment(document.getElementById(`deadlineTache${i}`).value, "DD-MM-YYYY").toDate();
+    const deadlineTacheSansHeure = new Date(deadlineTache.getFullYear(), deadlineTache.getMonth(), deadlineTache.getDate());
+    const dateDemarrageObjet = moment(dateDemarrage, "DD-MM-YYYY").toDate();
+    const dateDemarrageSansHeure = new Date(dateDemarrageObjet.getFullYear(), dateDemarrageObjet.getMonth(), dateDemarrageObjet.getDate());
+
+    if (deadlineTacheSansHeure < dateDemarrageSansHeure) {
+        setErrorMessage(`La deadline de la tâche ${i} est antérieure à la date de démarrage.`);
+        return; // Ajout d'un retour pour sortir de la fonction en cas d'erreur
+    }
+}
+    var jourParcouru = moment(dateDemarrage, "DD-MM-YYYY").toDate();
+    var jourParcouruSansHeure = new Date(jourParcouru.getFullYear(), jourParcouru.getMonth(), jourParcouru.getDate());
+    for (let i = 0; i < tachesTriees.length; i++) {
+      const tache = tachesTriees[i];
+      console.log(tache);
+      console.log("parseInt dureetache : ", parseInt(tache.duree));
+      dureeTotaleTaches += parseInt(tache.duree);
+      const deadlineTache = moment(tache.deadline, "DD-MM-YYYY").toDate();
+      const deadlineTacheSansHeure = new Date(deadlineTache.getFullYear(), deadlineTache.getMonth(), deadlineTache.getDate());
   }  
-  };
+  for (let i = 0; i < tachesTriees.length; i++) {
+    const tache = tachesTriees[i];
+    const dureeTache = parseInt(tache.duree);
+    const deadlineTache = moment(tache.deadline, "DD-MM-YYYY").toDate();
+    var dureeRestanteTache = dureeTache;
+
+    while (dureeRestanteTache > 0 && jourParcouruSansHeure <= deadlineTache) {
+        console.log("jour : ", jourParcouruSansHeure);
+        var jourSemaine = (jourParcouruSansHeure.getDay() + 6) % 7; // Ajustement pour obtenir l'index correct du Lundi au Dimanche
+        console.log(jourSemaine);
+        var disponibiliteJour = disponibilites[jourSemaine];
+        dureeRestanteTache -= parseInt(disponibiliteJour);
+        dureeTotaleTaches -= parseInt(disponibiliteJour);
+        jourParcouruSansHeure.setDate(jourParcouruSansHeure.getDate() + 1);
+    }
+}
+
+    console.log("dureeTotaleTaches : ",dureeTotaleTaches);
+
+    if(dureeTotaleTaches>0)
+    {
+      setErrorMessage(`Les disponibilités, les deadlines ainsi que la date de démarrage rentrés ne permettent pas de créer un planning réalisable`);
+      return; // Ajout d'un retour pour sortir de la fonction en cas d'erreur
+    }
+
+    // Suppression des tâches
+    axios.delete(`http://localhost:5035/api/utilisateur/${idutilisateur}/taches`)
+        .then(response => {
+            console.log("Toutes les tâches ont été supprimées avec succès");
+        })
+        .catch(error => {
+            console.error("Erreur lors de la suppression des tâches :", error);
+        });
+
+    const tachesDataArray = [];
+
+    for (let i = 1; i <= nombreTaches; i++) {
+        const nomInput = document.getElementById(`nomTache${i}`);
+        const dureeInput = document.getElementById(`dureeTache${i}`);
+        const deadlineInput = document.getElementById(`deadlineTache${i}`);
+
+        if (nomInput && dureeInput && deadlineInput) {
+            const tacheData = {
+                nom: nomInput.value,
+                duree: parseInt(dureeInput.value),
+                deadline: deadlineInput.value,
+                utilisateurId: idutilisateur
+            };
+
+            if (!isValidDate(tacheData.deadline)) {
+                setErrorMessage("Format de date incorrect pour la tâche. Veuillez utiliser le format dd-mm-yyyy.");
+                return;
+            }
+
+            tachesDataArray.push(tacheData);
+        }
+    }
+
+    if (tachesDataArray.length !== nombreTaches) {
+        setErrorMessage("Veuillez remplir toutes les deadlines des tâches.");
+        return;
+    }
+
+    for (let i = 0; i < tachesDataArray.length; i++) {
+        const tacheData = tachesDataArray[i];
+        try {
+            await creerTache(tacheData);
+        } catch (error) {
+            console.error("Erreur lors de la création de la tâche :", error);
+            return;
+        }
+    }
+
+    try {
+      await supprimerTodos(idutilisateur);
+    } catch (error) {
+      console.error("Erreur lors de la suppression des Todos :", error);
+      // Gérer l'erreur de suppression des Todos ici
+    }
+    
+    await genererTodos(dateDemarrage);
+
+    try {
+        await updateNoteUtilisateur(idutilisateur);
+        console.log("La note de l'utilisateur a été mise à jour avec succès.");
+    } catch (error) {
+        console.error("Erreur lors de la mise à jour de la note de l'utilisateur :", error);
+    }
+
+    try {
+        const userInfoResponse = await axios.get(`http://localhost:5035/api/utilisateur/infosConnexion?email=${email}`);
+        const { disponibilites, todos, taches, note } = userInfoResponse.data;
+        localStorage.setItem('disponibilites', JSON.stringify(disponibilites));
+        localStorage.setItem('todos', JSON.stringify(todos));
+        localStorage.setItem('taches', JSON.stringify(taches));
+        localStorage.setItem('note', note);
+    } catch (error) {
+        console.error("Erreur lors de la récupération des informations de l'utilisateur :", error);
+    }
+};
+
+
 
   const ajouterTache = () => {
     setNombreTaches(nombreTaches + 1);
+  };
+
+  const supprimerTache = () => {
+    setNombreTaches(nombreTaches - 1);
+  };
+
+  const handleDateChange = (event) => {
+    setDateDemarrage(event.target.value);
   };
 
   return (
@@ -151,48 +342,50 @@ export const CreerPlanning = () => {
         <br />
         <br />
         Lundi
-        <input id="lundi"></input>
+        <input id="lundi" />
         <br />
         Mardi
-        <input id="mardi"></input>
+        <input id="mardi" />
         <br />
         Mercredi
-        <input id="mercredi"></input>
+        <input id="mercredi" />
         <br />
         Jeudi
-        <input id="jeudi"></input>
+        <input id="jeudi" />
         <br />
         Vendredi
-        <input id="vendredi"></input>
+        <input id="vendredi" />
         <br />
         Samedi
-        <input id="samedi"></input>
+        <input id="samedi" />
         <br />
         Dimanche
-        <input id="dimanche"></input>
+        <input id="dimanche" />
         <br />
         <br />
         Veuillez rentrer les informations de vos différentes tâches
         <br />
         <br />
-        {/* Entrées pour la première tâche */}
         {[...Array(nombreTaches)].map((_, index) => (
           <TacheInput key={index} index={index + 1} />
         ))}
-        {/* Bouton pour ajouter une nouvelle tâche */}
         <button onClick={ajouterTache}>+</button>
+        {nombreTaches > 1 && <button onClick={supprimerTache}>-</button>}
         <br />
         <br />
         Sélectionnez une date de démarrage :
-        <DatePicker
-          selected={dateDemarrage}
+        <input
+          type="text"
+          value={dateDemarrage}
           onChange={handleDateChange}
-          dateFormat="dd-MM-yyyy"
-          placeholderText="Sélectionnez une date de démarrage"
+          placeholder="dd-mm-yyyy"
         />
+        <br />
+        {errorMessage && <div className="error-message">{errorMessage}</div>}
+        <button onClick={handleCreate}>Créer</button>
+        <br />
+        (Attention, si vous possédez déjà un planning, le planning actuel sera écrasé)
       </div>
-      {/* Bouton pour mettre à jour les disponibilités et créer les tâches */}
-      <button onClick={handleCreate}>Créer</button>
       <Navbar />
     </div>
   );

@@ -54,6 +54,7 @@ export const Connexion = () => {
       const Todos = userInfoResponse.data.todos;
       const Taches = userInfoResponse.data.taches;
       const IdUtilisateur = userInfoResponse.data.utilisateurId;
+      const Note = userInfoResponse.data.note;
       console.log(userInfoResponse);
       console.log(userInfoResponse.data);
       console.log(Prenom);
@@ -66,10 +67,12 @@ export const Connexion = () => {
         // Stoker les informations dans le localStorage
         localStorage.setItem('prenom', Prenom);
         localStorage.setItem('nom', Nom);
-        localStorage.setItem('disponibilites', Disponibilites);
-        localStorage.setItem('todos', Todos);
-        localStorage.setItem('taches', Taches);
+        localStorage.setItem('disponibilites', JSON.stringify(Disponibilites));
+        localStorage.setItem('todos', JSON.stringify(Todos));
+        localStorage.setItem('taches', JSON.stringify(Taches));
         localStorage.setItem('idutilisateur', IdUtilisateur);
+        localStorage.setItem('email', email);
+        localStorage.setItem('note', Note);
 
         navigate('/compte'); // Rediriger vers la page du compte
       } else {

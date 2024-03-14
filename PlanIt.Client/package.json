@@ -13,6 +13,7 @@
     "axios": "^1.6.5",
     "cors": "^2.8.5",
     "moment": "^2.30.1",
+    "moment-locale-fr": "^1.0.0",
     "react": "^18.2.0",
     "react-datepicker": "^6.2.0",
     "react-dom": "^18.2.0",

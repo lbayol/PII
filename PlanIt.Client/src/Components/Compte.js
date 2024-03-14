@@ -5,10 +5,11 @@ import Navbar from "./Navbar";
 export const Compte = () => {
   const prenom = localStorage.getItem('prenom');
   const nom = localStorage.getItem('nom');
-  const disponibilites = localStorage.getItem('disponibilites');
-  const todos = localStorage.getItem('todos');
-  const taches = localStorage.getItem('taches');
+  const disponibilites = JSON.parse(localStorage.getItem('disponibilites'));
+  const todos = JSON.parse(localStorage.getItem('todos'));
+  const taches = JSON.parse(localStorage.getItem('taches'));
   const idutilisateur = localStorage.getItem('idutilisateur');
+  const email = localStorage.getItem('email');
   const navigate = useNavigate();
 
   useEffect(() => {

@@ -206,6 +206,22 @@ public IActionResult UpdateUserNote(int id)
     return Ok($"La note de l'utilisateur avec l'ID {id} a été mise à jour avec succès.");
 }
 
+[HttpDelete("{idUtilisateur}/taches")]
+public IActionResult DeleteTachesUtilisateur(int idUtilisateur)
+{
+    var utilisateur = _context.Utilisateurs.Include(u => u.Taches).FirstOrDefault(u => u.UtilisateurId == idUtilisateur);
+
+    if (utilisateur == null)
+    {
+        return NotFound("Utilisateur non trouvé.");
+    }
+
+    // Supprimer toutes les tâches de l'utilisateur de la base de données
+    _context.Taches.RemoveRange(utilisateur.Taches);
+    _context.SaveChanges();
+
+    return Ok("Toutes les tâches de l'utilisateur ont été supprimées avec succès.");
+}
 
 
         /*[HttpDelete("{id}")]

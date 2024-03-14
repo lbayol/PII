@@ -41,7 +41,10 @@ public IActionResult GenererTodos(int utilisateurId, [FromBody] string dateDemar
 
     var date = dateDemarrage;
 
-    foreach (var tache in utilisateur.Taches)
+    // Tri des tâches par ordre croissant de deadline
+    var tachesTriees = utilisateur.Taches.OrderBy(t => t.Deadline);
+
+    foreach (var tache in tachesTriees)
     {
         var dureeTacheRestante = tache.Duree;
 
@@ -52,16 +55,15 @@ public IActionResult GenererTodos(int utilisateurId, [FromBody] string dateDemar
             var jourSemaine = ((int)date.DayOfWeek + 6) % 7; // Ajustement pour obtenir l'index correct du Lundi au Dimanche
             var disponibiliteJour = utilisateur.Disponibilites.ElementAt(jourSemaine);
             var heureDisponibiliteRestante = disponibiliteJour.NbHeure;
-            if(todos.Count > 0)
+            foreach(var todo in todos)
             {
-                var lastTodo = todos.LastOrDefault();
-                if(lastTodo != null && lastTodo.Date == date)
+                if(todo.Date == date)
                 {
-                    heureDisponibiliteRestante -= lastTodo.Duree;
+                    heureDisponibiliteRestante -= todo.Duree;
                 }
             }
             // Vérifier si l'utilisateur a de la disponibilité pour ce jour
-            if (disponibiliteJour.NbHeure > 0)
+            if (heureDisponibiliteRestante > 0)
             {
                 // Calculer la durée de la tâche à attribuer pour ce jour
                 var dureeTodo = Math.Min(heureDisponibiliteRestante, dureeTacheRestante);
@@ -88,11 +90,8 @@ public IActionResult GenererTodos(int utilisateurId, [FromBody] string dateDemar
                 utilisateur.Todos.Add(todoGET);
                 // Mettre à jour la durée restante de la tâche
                 dureeTacheRestante -= dureeTodo;
-
-                // Mettre à jour la disponibilité restante
-                heureDisponibiliteRestante -= dureeTodo;
             }
-            if(dureeTacheRestante != 0 || heureDisponibiliteRestante == 0)
+            if(heureDisponibiliteRestante == 0)
             {
                 // Passer au jour suivant
                 date = date.AddDays(1);
@@ -102,12 +101,16 @@ public IActionResult GenererTodos(int utilisateurId, [FromBody] string dateDemar
         tache.Duree = 0;
     }
 
+    // Tri des Todos par ordre croissant de date
+    todos = todos.OrderBy(t => t.Date).ToList();
+
     // Ajouter les Todos à la base de données
     _context.Todos.AddRange(todos);
     _context.SaveChanges();
 
     return Ok("Todos générés avec succès");
 }
+
 
 [HttpPut("{utilisateurId}/todos/{todoId}/changerRates")]
 public IActionResult ChangerRatesTodo(int utilisateurId, int todoId, [FromBody] int nouveauRates)
@@ -289,6 +292,39 @@ _context.SaveChanges();
     return result;
 }
 
+[HttpDelete("{utilisateurId}/todos/{todoId}/supprimerTodo")]
+public IActionResult SupprimerTodo(int utilisateurId, int todoId)
+{
+    var utilisateur = _context.Utilisateurs
+        .Include(u => u.Todos)
+        .FirstOrDefault(u => u.UtilisateurId == utilisateurId);
+
+    if (utilisateur == null)
+        return NotFound("Utilisateur non trouvé");
+
+    // Rechercher la Todo correspondante dans la liste de Todos de l'utilisateur
+    var todoToRemove = utilisateur.Todos.FirstOrDefault(t => t.TodoId == todoId);
+    if (todoToRemove == null)
+        return NotFound("Todo non trouvé dans la liste de l'utilisateur");
+
+    // Supprimer la Todo de la liste de Todos de l'utilisateur
+    utilisateur.Todos.Remove(todoToRemove);
+
+    // Rechercher la Todo correspondante dans le contexte de la base de données
+    var todoEntityToRemove = _context.Todos.Find(todoId);
+    if (todoEntityToRemove == null)
+        return NotFound("Todo non trouvé dans la base de données");
+
+    // Supprimer la Todo du contexte de la base de données
+    _context.Todos.Remove(todoEntityToRemove);
+
+    // Enregistrer les modifications dans la base de données
+    _context.SaveChanges();
+
+    var todosMisesAJour = utilisateur.Todos.ToList();
+    return Ok(todosMisesAJour);
+
+}
 
 
 

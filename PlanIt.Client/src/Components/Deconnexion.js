@@ -8,6 +8,12 @@ const Deconnexion = () => {
     // Effacez les informations de connexion du localStorage
     localStorage.removeItem('prenom');
     localStorage.removeItem('nom');
+    localStorage.removeItem('disponibilites');
+    localStorage.removeItem('todos');
+    localStorage.removeItem('taches');
+    localStorage.removeItem('idutilisateur');
+    localStorage.removeItem('email');
+    localStorage.removeItem('note');
 
     // Redirigez vers la page de connexion après la déconnexion
     navigate('/connexion');
