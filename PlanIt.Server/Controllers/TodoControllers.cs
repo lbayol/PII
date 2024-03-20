@@ -21,7 +21,11 @@ namespace PlanIt.Controllers
         [HttpPost("{utilisateurId}/genererTodos")]
 public IActionResult GenererTodos(int utilisateurId, [FromBody] string dateDemarrageString)
 {
-    Console.WriteLine("Date de démarrage reçue depuis le frontend : " + dateDemarrageString);
+    var suppressionResult = SupprimerTodos(utilisateurId);
+    if (suppressionResult is NotFoundResult)
+        return suppressionResult; // Retourner le NotFound si l'utilisateur n'est pas trouvé
+    else if (suppressionResult is OkResult)
+        Console.WriteLine("Tous les Todos de l'utilisateur ont été supprimés avec succès");
     // Convertir la chaîne de date en DateTimeOffset avec le format spécifié
     if (!DateTimeOffset.TryParseExact(dateDemarrageString, "dd-MM-yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTimeOffset dateDemarrage))
     {
@@ -46,6 +50,17 @@ public IActionResult GenererTodos(int utilisateurId, [FromBody] string dateDemar
 
     foreach (var tache in tachesTriees)
     {
+        Console.WriteLine("tache.Nom : ");
+        Console.WriteLine(tache.Nom);
+        Console.WriteLine("tache.Duree : ");
+        Console.WriteLine(tache.Duree);
+        Console.WriteLine("tache.NombreHeuresRealisees : ");
+        Console.WriteLine(tache.NombreHeuresRealisees);
+        if (tache.Realisation == true)
+        {
+            continue;
+        }
+
         var dureeTacheRestante = tache.Duree;
 
         // Tant qu'il reste de la durée à attribuer à la tâche et qu'on n'a pas dépassé la deadline
@@ -83,8 +98,7 @@ public IActionResult GenererTodos(int utilisateurId, [FromBody] string dateDemar
                     Nom = todo.Nom,
                     Duree = todo.Duree,
                     Date = todo.Date,
-                    Realisation = todo.Realisation,
-                    Rates = todo.Rates
+                    Realisation = todo.Realisation
                 };
                 todos.Add(todo);
                 utilisateur.Todos.Add(todoGET);
@@ -97,8 +111,6 @@ public IActionResult GenererTodos(int utilisateurId, [FromBody] string dateDemar
                 date = date.AddDays(1);
             }
         }
-        // Mettre à zéro la durée de la tâche après la génération des Todos
-        tache.Duree = 0;
     }
 
     // Tri des Todos par ordre croissant de date
@@ -111,40 +123,6 @@ public IActionResult GenererTodos(int utilisateurId, [FromBody] string dateDemar
     return Ok("Todos générés avec succès");
 }
 
-
-[HttpPut("{utilisateurId}/todos/{todoId}/changerRates")]
-public IActionResult ChangerRatesTodo(int utilisateurId, int todoId, [FromBody] int nouveauRates)
-{
-    var utilisateur = _context.Utilisateurs
-        .Include(u => u.Todos)
-        .FirstOrDefault(u => u.UtilisateurId == utilisateurId);
-
-    if (utilisateur == null)
-        return NotFound("Utilisateur non trouvé");
-
-    // Trouver la Todo correspondante dans la liste des Todos de l'utilisateur
-    var todo = utilisateur.Todos.FirstOrDefault(t => t.TodoId == todoId);
-
-    if (todo == null)
-        return NotFound("Todo non trouvé");
-
-    // Trouver la Todo correspondante dans le contexte de la base de données
-    var todoEntity = _context.Todos.FirstOrDefault(t => t.TodoId == todoId);
-
-    if (todoEntity == null)
-        return NotFound("Todo non trouvé");
-
-    // Mettre à jour l'entier Rates de la Todo dans le contexte de la base de données
-    todoEntity.Rates = nouveauRates;
-
-    // Mettre à jour le nombre de ratés dans la liste de TodoGET de l'utilisateur
-    todo.Rates = nouveauRates;
-
-    // Enregistrer les modifications dans la base de données
-    _context.SaveChanges();
-
-    return Ok("Rates de la Todo mis à jour avec succès");
-}
 
 
 
@@ -203,7 +181,7 @@ public IActionResult SupprimerTodos(int utilisateurId)
             _context.Todos.Remove(todoToRemove);
         }
     }
-    
+
     _context.SaveChanges();
 
     return Ok("Tous les Todos de l'utilisateur ont été supprimés avec succès");
@@ -237,60 +215,73 @@ public IActionResult RegenererTodos(int todoId)
     if (utilisateur == null)
         return NotFound("Utilisateur non trouvé");
 
+    // Stocker la durée initiale de chaque tâche
+    var dureesInitiales = new Dictionary<int, int>(); // Clé: TâcheId, Valeur: Durée initiale
+    foreach (var tache in utilisateur.Taches)
+    {
+        Console.WriteLine("tache.Nom ligne 221 : ");
+        Console.WriteLine(tache.Nom);
+        Console.WriteLine("tache.Duree : ");
+        Console.WriteLine(tache.Duree);
+        Console.WriteLine("tache.NombreHeuresRealisees : ");
+        dureesInitiales.Add(tache.TacheId, tache.Duree);
+    }
+
+
     var todos = utilisateur.Todos
         .Where(t => t.Date.Date >= dateDemarrage.AddDays(-1).Date) // Comparer uniquement les dates (ignorer l'heure)
         .ToList();
 
+    // Calculer la somme des durées des Todos pour chaque tâche
+    var dureesTotales = new Dictionary<int, int>(); // Clé: TâcheId, Valeur: Somme des durées des Todos
     foreach (var todoToRegenerate in todos)
     {
-        // Trouver la tâche correspondante ayant le même nom que la Todo
-        var tache = utilisateur.Taches.FirstOrDefault(t => t.Nom == todoToRegenerate.Nom);
-
-        if (tache != null)
+        var tacheId = utilisateur.Taches.FirstOrDefault(t => t.Nom == todoToRegenerate.Nom)?.TacheId;
+        if (tacheId != null)
         {
-            // Ajouter la durée de la Todo à la durée de la tâche correspondante
-            tache.Duree += todoToRegenerate.Duree;
-
-            // Supprimer la Todo
-            var todoToRemove = _context.Todos.Find(todoToRegenerate.TodoId);
-            if (todoToRemove != null)
+            if (!dureesTotales.ContainsKey(tacheId.Value))
             {
-                _context.Todos.Remove(todoToRemove);
-                
-                // Supprimer également la TodoGET correspondante dans la liste de TodoGET de l'utilisateur
-                utilisateur.Todos.Remove(todoToRegenerate);
+                dureesTotales.Add(tacheId.Value, 0);
             }
+            dureesTotales[tacheId.Value] += todoToRegenerate.Duree;
         }
     }
 
-    _context.SaveChanges(); // Enregistrer les modifications sur les durées des tâches et la suppression des Todos
+
+    // Modifier la durée des tâches
+    foreach (var tache in utilisateur.Taches)
+    {
+        var tacheId = tache.TacheId;
+        if (dureesTotales.ContainsKey(tacheId))
+        {
+            tache.Duree = dureesTotales[tacheId];
+            Console.WriteLine("tache.Nom ligne 257 : ");
+            Console.WriteLine(tache.Nom);
+            Console.WriteLine("tache.Duree : ");
+            Console.WriteLine(tache.Duree);
+            Console.WriteLine("tache.NombreHeuresRealisees : ");
+        }
+    }
+
+    _context.SaveChanges(); // Enregistrer les modifications sur les durées des tâches
+
+    
 
     // Appeler la méthode GenererTodos pour générer les Todos à partir de la date de la Todo
+    //Là on fait générer todos alors qu'on a pas encore redonner les vraies durées des tâches
     var result = GenererTodos(utilisateur.UtilisateurId, dateDemarrage.ToString("dd-MM-yyyy"));
 
-   // Récupérer tous les Todos non réalisés dans la liste TodoGET de l'utilisateur
-var todosToIncrementRates = utilisateur.Todos
-    .Where(t => t.Date.Date == dateDemarrage.Date && !t.Realisation)
-    .ToList();
-
-// Incrémenter le nombre de ratés des Todos dans la liste TodoGET de l'utilisateur et dans la table Todos
-foreach (var todoToIncrementRates in todosToIncrementRates)
-{
-    todoToIncrementRates.Rates++;
-
-    // Récupérer la Todo correspondante dans la table Todos et incrémenter son nombre de ratés
-    var todoEntity = _context.Todos.Find(todoToIncrementRates.TodoId);
-    if (todoEntity != null)
+    // Restaurer les durées initiales des tâches
+    foreach (var tache in utilisateur.Taches)
     {
-        todoEntity.Rates++;
+        tache.Duree = dureesInitiales[tache.TacheId];
     }
-}
 
-// Enregistrer les modifications sur les nombres de ratés dans la table Todos
-_context.SaveChanges();
+    _context.SaveChanges(); // Enregistrer les modifications sur les durées des tâches
 
     return result;
 }
+
 
 [HttpDelete("{utilisateurId}/todos/{todoId}/supprimerTodo")]
 public IActionResult SupprimerTodo(int utilisateurId, int todoId)
@@ -307,6 +298,23 @@ public IActionResult SupprimerTodo(int utilisateurId, int todoId)
     if (todoToRemove == null)
         return NotFound("Todo non trouvé dans la liste de l'utilisateur");
 
+    foreach(var tache in utilisateur.Taches)
+    {
+        if(tache.Nom == todoToRemove.Nom)
+        {
+            tache.NombreHeuresRealisees += todoToRemove.Duree;
+            Console.WriteLine("nom tache : ");
+            Console.WriteLine(tache.Nom);
+            Console.WriteLine("nombreheuresrealisees tache : ");
+            Console.WriteLine(tache.NombreHeuresRealisees);
+            Console.WriteLine("duree tache : ");
+            Console.WriteLine(tache.Duree);
+            if(tache.NombreHeuresRealisees == tache.Duree)
+            {
+                tache.Realisation = true;
+            }
+        }
+    }
     // Supprimer la Todo de la liste de Todos de l'utilisateur
     utilisateur.Todos.Remove(todoToRemove);
 
@@ -326,9 +334,5 @@ public IActionResult SupprimerTodo(int utilisateurId, int todoId)
 
 }
 
-
-
-
     }
-
 }

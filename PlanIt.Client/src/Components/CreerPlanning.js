@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import moment from 'moment';
 import Navbar from "./Navbar";
+import { Link, useNavigate } from 'react-router-dom';
 
 const TacheInput = ({ index }) => (
   <div>
@@ -45,6 +46,7 @@ export const CreerPlanning = () => {
   const nom = localStorage.getItem('nom');
   const email = localStorage.getItem('email');
   const idutilisateur = parseInt(localStorage.getItem('idutilisateur'));
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!prenom || !nom || !idutilisateur) {
@@ -100,20 +102,35 @@ export const CreerPlanning = () => {
     });
 };
 
-
-const updateNoteUtilisateur = (idUtilisateur) => {
+const calculerHeuresDisponibles = (idUtilisateur) => {
   return new Promise((resolve, reject) => {
-      axios.put(`http://localhost:5035/api/utilisateur/UpdateNote/${idUtilisateur}`)
-          .then(response => {
-              console.log("Note de l'utilisateur mise à jour avec succès :", response.data);
-              resolve(response.data);
-          })
-          .catch(error => {
-              console.error("Erreur lors de la mise à jour de la note de l'utilisateur :", error);
-              reject(error);
-          });
+    axios.put(`http://localhost:5035/api/utilisateur/CalculerHeuresDisponibles?idUtilisateur=${idUtilisateur}`)
+      .then(response => {
+        console.log("Le nombre d'heures disponibles de l'utilisateur a été mis à jour :", response.data);
+        resolve(response.data);
+      })
+      .catch(error => {
+        console.error("Erreur lors de la mise à jour des heures disponibles de l'utilisateur :", error);
+        reject(error);
+      });
   });
 };
+
+const rafraichirNoteRates = (idUtilisateur) => {
+  return new Promise((resolve, reject) => {
+    axios.put(`http://localhost:5035/api/utilisateur/RafraichirNoteRates?idUtilisateur=${idUtilisateur}`)
+      .then(response => {
+        console.log("Les ratés et la note de l'utilisateur ont été mis à jour : ", response.data);
+        resolve(response.data);
+      })
+      .catch(error => {
+        console.error("Erreur lors de la mise à jour des ratés et de la note de l'utilisateur :", error);
+        reject(error);
+      });
+  });
+};
+
+
 
 const supprimerTodos = async (utilisateurId) => {
   try {
@@ -302,11 +319,13 @@ const supprimerTodos = async (utilisateurId) => {
     await genererTodos(dateDemarrage);
 
     try {
-        await updateNoteUtilisateur(idutilisateur);
-        console.log("La note de l'utilisateur a été mise à jour avec succès.");
+        await calculerHeuresDisponibles(idutilisateur);
+        console.log("Les heures disponibles ont été calculées avec succès");
     } catch (error) {
-        console.error("Erreur lors de la mise à jour de la note de l'utilisateur :", error);
+        console.error("Erreur lors du calcul des heures disponibles :", error);
     }
+
+    await rafraichirNoteRates(idutilisateur);
 
     try {
         const userInfoResponse = await axios.get(`http://localhost:5035/api/utilisateur/infosConnexion?email=${email}`);
@@ -315,6 +334,7 @@ const supprimerTodos = async (utilisateurId) => {
         localStorage.setItem('todos', JSON.stringify(todos));
         localStorage.setItem('taches', JSON.stringify(taches));
         localStorage.setItem('note', note);
+        navigate('/planning');
     } catch (error) {
         console.error("Erreur lors de la récupération des informations de l'utilisateur :", error);
     }

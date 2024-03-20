@@ -51,6 +51,12 @@ namespace PII.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("NombreHeuresRealisees")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Realisation")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("UtilisateurId")
                         .HasColumnType("INTEGER");
 
@@ -143,6 +149,12 @@ namespace PII.Migrations
                     b.Property<string>("Nom")
                         .IsRequired()
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("NombreHeuresDisponibles")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("NombreHeuresRates")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Note")
                         .HasColumnType("INTEGER");

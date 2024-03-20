@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace PII.Migrations
 {
     [DbContext(typeof(PlanItContext))]
-    [Migration("20240226180539_Migrations")]
+    [Migration("20240320105130_Migrations")]
     partial class Migrations
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -52,6 +52,12 @@ namespace PII.Migrations
                     b.Property<string>("Nom")
                         .IsRequired()
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("NombreHeuresRealisees")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Realisation")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("UtilisateurId")
                         .HasColumnType("INTEGER");
@@ -145,6 +151,12 @@ namespace PII.Migrations
                     b.Property<string>("Nom")
                         .IsRequired()
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("NombreHeuresDisponibles")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("NombreHeuresRates")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Note")
                         .HasColumnType("INTEGER");

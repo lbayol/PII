@@ -19,7 +19,9 @@ namespace PII.Migrations
                     Prenom = table.Column<string>(type: "TEXT", nullable: false),
                     Email = table.Column<string>(type: "TEXT", nullable: false),
                     Password = table.Column<string>(type: "TEXT", nullable: false),
-                    Note = table.Column<int>(type: "INTEGER", nullable: false)
+                    Note = table.Column<int>(type: "INTEGER", nullable: false),
+                    NombreHeuresRates = table.Column<int>(type: "INTEGER", nullable: false),
+                    NombreHeuresDisponibles = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -55,7 +57,9 @@ namespace PII.Migrations
                     Nom = table.Column<string>(type: "TEXT", nullable: false),
                     Duree = table.Column<int>(type: "INTEGER", nullable: false),
                     Deadline = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
-                    UtilisateurId = table.Column<int>(type: "INTEGER", nullable: false)
+                    UtilisateurId = table.Column<int>(type: "INTEGER", nullable: false),
+                    NombreHeuresRealisees = table.Column<int>(type: "INTEGER", nullable: false),
+                    Realisation = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {

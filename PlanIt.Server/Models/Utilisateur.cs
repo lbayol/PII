@@ -13,11 +13,15 @@ public class Utilisateur
     public List<Tache> Taches {get;set;}
     public List<TodoGET> Todos {get;set;}
     public int Note {get; set;}
+    public int NombreHeuresRates {get; set;}
+    public int NombreHeuresDisponibles {get;set;}
     public Utilisateur()
     {
         Disponibilites = new List<Disponibilite>();
         Taches = new List<Tache>();
         Todos = new List<TodoGET>();
-        Note = 0;
+        Note = 100;
+        NombreHeuresRates = 0;
+        NombreHeuresDisponibles = 0;
     }
 }

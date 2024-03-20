@@ -1,6 +1,7 @@
 import React, {useEffect} from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from "./Navbar";
+import "../Styles/Compte.css";
 
 export const Compte = () => {
   const prenom = localStorage.getItem('prenom');
@@ -20,7 +21,14 @@ export const Compte = () => {
 
   return (
     <div>
-      <h1>Bienvenue sur votre compte, {prenom} {nom}, id : {idutilisateur}!</h1>
+      <div classname="text-wrapper">PlanIt</div>
+      <br/>
+      <div className='text-wrapper-2'>Bienvenue</div>
+      <div>{prenom}</div>
+      <br/>
+      <div>{nom}</div>
+      <br/>
+      <div>Organisation parfaite ? Déconnectez-vous juste ici.</div>
       <Link to="/deconnexion">Se déconnecter</Link>
       <Navbar/>
     </div>

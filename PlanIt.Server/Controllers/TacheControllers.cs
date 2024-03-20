@@ -63,5 +63,41 @@ namespace PlanIt.Controllers
 
             return Ok(nouvelleTache);
         }
+        [HttpPut("RafraichirHeuresRealisees")]
+public IActionResult RafraichirHeuresRealisees(int idUtilisateur, int idTache, int idTodo)
+{
+    var utilisateur = _context.Utilisateurs
+                              .Include(u => u.Todos)
+                              .Include(u => u.Disponibilites)
+                              .Include(u => u.Taches)
+                              .FirstOrDefault(u => u.UtilisateurId == idUtilisateur);
+
+    if (utilisateur == null)
+    {
+        return NotFound("Utilisateur non trouvé.");
+    }
+
+    foreach(var todo in utilisateur.Todos)
+    {
+        if(todo.TodoId == idTodo)
+        {
+            foreach(var tache in utilisateur.Taches)
+            {
+                if(tache.Nom == todo.Nom)
+                {
+                    tache.NombreHeuresRealisees += todo.Duree;
+                    if(tache.NombreHeuresRealisees == tache.Duree)
+                    {
+                        tache.Realisation = true;
+                    }
+                }
+            }
+        }
+    }
+
+     _context.SaveChanges();
+
+    return Ok("Les ratés de l'utilisateur ont été mis à jour.");
+}
     }
 }

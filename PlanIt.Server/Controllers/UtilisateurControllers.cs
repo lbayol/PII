@@ -160,51 +160,73 @@ public IActionResult UpdateUserNote(int id)
         return NotFound("Utilisateur non trouvé.");
     }
 
-    // Calculer le nombre total d'heures de todos ratées
-    int heuresTotalesRatées = utilisateur.Todos.Sum(t => t.Duree * t.Rates);
+    // Vérifier pour éviter une division par zéro
+    if (utilisateur.NombreHeuresDisponibles == 0)
+    {
+        return BadRequest("Impossible de calculer la note : aucun créneau disponible.");
+    }
+
+    // Calculer la nouvelle note de l'utilisateur
+    double nouvelleNote = 100 - (100.0 * utilisateur.NombreHeuresRates / utilisateur.NombreHeuresDisponibles);
+
+    // Mettre à jour la note de l'utilisateur dans la base de données
+    utilisateur.Note = (int)nouvelleNote;
+
+    if(utilisateur.Note == 0)
+    {
+        utilisateur.Note = 1;
+    }
+
+    _context.SaveChanges();
+
+    return Ok($"La note de l'utilisateur avec l'ID {id} a été mise à jour avec succès.");
+}
+
+[HttpPut("CalculerHeuresDisponibles")]
+public IActionResult CalculerHeuresDisponibles(int idUtilisateur)
+{
+    var utilisateur = _context.Utilisateurs
+                              .Include(u => u.Todos)
+                              .Include(u => u.Disponibilites)
+                              .Include(u => u.Taches)
+                              .FirstOrDefault(u => u.UtilisateurId == idUtilisateur);
+
+    if (utilisateur == null)
+    {
+        return NotFound("Utilisateur non trouvé.");
+    }
 
     // Récupérer la date actuelle
     DateTimeOffset maintenant = DateTimeOffset.Now;
 
     // Calculer le nombre total d'heures de créneaux disponibles avant la prochaine tâche
     int heuresTotalesDisponibles = 0;
-    foreach (var tache in utilisateur.Taches)
-    {
+    var tachePlusProche = utilisateur.Taches
+    .Where(t => t.Duree != t.NombreHeuresRealisees) // Filtrer les tâches où la durée est différente du nombre d'heures réalisées
+    .OrderBy(t => t.Deadline) // Ordonner les tâches par date limite
+    .FirstOrDefault(); // Sélectionner la première tâche dans l'ordre trié
         // Trouver la todo associée à cette tâche avec la date la plus récente
-        var todoAssociee = utilisateur.Todos.Where(t => t.Nom == tache.Nom)
+        var todoAssociee = utilisateur.Todos.Where(t => t.Nom == tachePlusProche.Nom)
                                             .OrderByDescending(t => t.Date)
                                             .FirstOrDefault();
 
         // Vérifier si une todo associée à cette tâche existe et si sa date est dans le futur
         // Vérifier si une todo associée à cette tâche existe, si sa date est dans le futur et si elle est antérieure à la deadline de la tâche
-        if (todoAssociee != null && todoAssociee.Date >= maintenant && todoAssociee.Date < tache.Deadline)
+        if (todoAssociee != null && todoAssociee.Date >= maintenant && todoAssociee.Date <= tachePlusProche.Deadline)
         {
             // Parcourir chaque jour à partir de la date de la todo associée jusqu'à la deadline de la tâche
-            for (DateTimeOffset date = todoAssociee.Date; date <= tache.Deadline; date = date.AddDays(1))
+            for (DateTimeOffset date = todoAssociee.Date.AddDays(1); date <= tachePlusProche.Deadline; date = date.AddDays(1))
             {
                 // Trouver l'index du jour de la semaine, où 0 correspond à Lundi, 1 à Mardi, etc.
                 int indexJour = ((int)date.DayOfWeek + 6) % 7;
                 heuresTotalesDisponibles += utilisateur.Disponibilites[indexJour].NbHeure;
             }
         }
-    }
-
-    // Vérifier pour éviter une division par zéro
-    if (heuresTotalesDisponibles == 0)
-    {
-        return BadRequest("Impossible de calculer la note : aucun créneau disponible.");
-    }
-
-    // Calculer la nouvelle note de l'utilisateur
-    double nouvelleNote = 100 - (100.0 * heuresTotalesRatées / heuresTotalesDisponibles);
-
-    // Mettre à jour la note de l'utilisateur dans la base de données
-    utilisateur.Note = (int)nouvelleNote;
-
+    utilisateur.NombreHeuresDisponibles = heuresTotalesDisponibles;
     _context.SaveChanges();
-
-    return Ok($"La note de l'utilisateur avec l'ID {id} a été mise à jour avec succès.");
+    return Ok("Le nombre d'heures disponibles de l'utilisateur a été mis à jour.");
 }
+
 
 [HttpDelete("{idUtilisateur}/taches")]
 public IActionResult DeleteTachesUtilisateur(int idUtilisateur)
@@ -222,6 +244,87 @@ public IActionResult DeleteTachesUtilisateur(int idUtilisateur)
 
     return Ok("Toutes les tâches de l'utilisateur ont été supprimées avec succès.");
 }
+[HttpPut("RafraichirNoteRates")]
+public IActionResult RafraichirNoteRates(int idUtilisateur)
+{
+    var utilisateur = _context.Utilisateurs
+                              .Include(u => u.Todos)
+                              .Include(u => u.Disponibilites)
+                              .Include(u => u.Taches)
+                              .FirstOrDefault(u => u.UtilisateurId == idUtilisateur);
+
+    if (utilisateur == null)
+    {
+        return NotFound("Utilisateur non trouvé.");
+    }
+
+    utilisateur.NombreHeuresRates = 0;
+    utilisateur.Note = 100;
+
+     _context.SaveChanges();
+
+    return Ok("Les ratés et la note de l'utilisateur ont été mis à jour.");
+}
+
+[HttpPut("RafraichirRates")]
+public IActionResult RafraichirRates(int idUtilisateur, int idTodo)
+{
+    var utilisateur = _context.Utilisateurs
+                              .Include(u => u.Todos)
+                              .Include(u => u.Disponibilites)
+                              .Include(u => u.Taches)
+                              .FirstOrDefault(u => u.UtilisateurId == idUtilisateur);
+
+    if (utilisateur == null)
+    {
+        return NotFound("Utilisateur non trouvé.");
+    }
+
+    foreach(var todo in utilisateur.Todos)
+    {
+        if(todo.TodoId == idTodo)
+        {
+            utilisateur.NombreHeuresRates += todo.Duree;
+        }
+    }
+
+     _context.SaveChanges();
+
+    return Ok("Les ratés de l'utilisateur ont été mis à jour.");
+}
+
+[HttpPut("RafraichirNoteRatesDisponibles")]
+public IActionResult RafraichirNoteRatesDisponibles(int idUtilisateur, string nomTodo)
+{
+    var utilisateur = _context.Utilisateurs
+                              .Include(u => u.Todos)
+                              .Include(u => u.Disponibilites)
+                              .Include(u => u.Taches)
+                              .FirstOrDefault(u => u.UtilisateurId == idUtilisateur);
+
+    if (utilisateur == null)
+    {
+        return NotFound("Utilisateur non trouvé.");
+    }
+
+    foreach (var tache in utilisateur.Taches)
+    {
+        if (tache.Nom == nomTodo && tache.NombreHeuresRealisees == tache.Duree)
+        {
+            utilisateur.Note = 100;
+            utilisateur.NombreHeuresRates = 0;
+            _context.SaveChanges();
+
+            // Calculer les heures disponibles
+            return CalculerHeuresDisponibles(idUtilisateur);
+        }
+    }
+
+    // Si la condition n'est pas satisfaite, vous pouvez simplement retourner une réponse sans contenu
+    return NoContent();
+}
+
+
 
 
         /*[HttpDelete("{id}")]
