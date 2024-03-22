@@ -1,19 +1,18 @@
-.connexion {
+.compte {
     background-color: #fffcf7;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
     width: 100%;
+    height: 1000px;
+    overflow: hidden;
   }
   
-  .connexion .div {
+  .compte .div {
     background-color: #fffcf7;
     height: 100%;
     position: relative;
     width: 100%;
   }
   
-  .connexion .overlap {
+  .compte .overlap {
     height: 30%;
     left: 3px;
     position: absolute;
@@ -21,7 +20,7 @@
     width: 100%;
   }
   
-  .connexion .text-wrapper {
+  .compte .text-wrapper {
     color: #2d544a;
     font-family: "Jost-SemiBold", Helvetica;
     font-size: 5vh;
@@ -33,47 +32,52 @@
     width: 32%;
   }
   
-  .connexion .overlap-group {
+  .compte .overlap-group {
     height: 29.69%;
     left: 8.21%;
     position: absolute;
     width: 91%;
   }
   
-  .connexion .text-wrapper-2 {
+  .compte .text-wrapper-2 {
     color: #2d544a;
     font-family: "Jost-Medium", Helvetica;
-    font-size: 7vh;
+    font-size: 6vh;
     font-weight: 500;
     line-height: normal;
     position: absolute;
     text-align: center;
-    top: 5500%;
+    top: 15%;
     width: 92%;
+    left: 4%;
   }
   
-  .connexion .forme {
-    left: 65%;
+  .compte .forme {
+    left: -40%;
     position: absolute;
-    width: 40%;
+    width: 80%;
+    top: 10%;
+    transform: rotate(90deg);
   }
   
-  .connexion .text-wrapper-3 {
+  .compte .text-wrapper-3 {
     color: #2d544a;
     font-family: "Jost-Medium", Helvetica;
-    font-size: 3.5vh;
+    font-size: 4.5vh;
     font-weight: 500;
     line-height: normal;
     position: relative;
-    text-align: center;
-    top: 8.5em;
+    text-align: right;
+    top: 7em;
     white-space: nowrap;
-    width: 53%;
-    margin-left: auto;
-    margin-right: auto;
+    width: 50%;
+    margin-left: 8%;
+    margin-bottom: 5%;
+    font-weight: bold;
+    left: 30%;
   }
   
-  .connexion .overlap-2 {
+  .compte .overlap-2 {
     height: 37.3%;
     left: 0;
     position: absolute;
@@ -81,7 +85,7 @@
     width: 100%;
   }
   
-  .connexion .overlap-3 {
+  .compte .overlap-3 {
     height: 37.28%;
     left: 0;
     position: absolute;
@@ -89,21 +93,22 @@
     width: 90%;
   }
   
-  .connexion .text-wrapper-4 {
+  .compte .text-wrapper-4 {
     color: #2d544a;
     font-family: "Jost-Medium", Helvetica;
-    font-size: 1.5em;
+    font-size: 1.4em;
     font-weight: 500;
-    height: 4.8%;
-    left: 30%;
-    line-height: normal;
+    height: 10%;
+    left: 10%;
+    line-height: 1.5;
     position: absolute;
-    text-align: right;
-    top: 4100%;
-    width: 40%;
+    text-align: center;
+    top: 60%;
+    width: 80%;
+    padding-bottom: 5%;
   }
   
-  .connexion .error-message {
+  .compte .error-message {
     background-color: #fffcf7;
     border: 0.01px solid;
     border-color: #d93232;
@@ -121,7 +126,7 @@
     padding : 1%;
   }
   
-  .connexion .error-message2 {
+  .compte .error-message2 {
     background-color: #fffcf7;
     border: 0.01px solid;
     border-color: #d93232;
@@ -140,7 +145,7 @@
     padding : 1%;
   }
   
-  .connexion .img {
+  .compte .img {
     height: 5500%;
     left: 0;
     position: absolute;
@@ -150,7 +155,7 @@
     width: 43%;
   }
   
-  .connexion .frame {
+  .compte .frame {
     align-items: center;
     display: flex;
     flex-direction: column;
@@ -162,13 +167,13 @@
     width: 90%;
   }
   
-  .connexion .bouton-mail-mdp {
+  .compte .bouton-mail-mdp {
     height: 15%;
     position: relative;
     width: 92%;
   }
   
-  .connexion .overlap-group-2 {
+  .compte .overlap-group-2 {
     background-color: #fffcf7;
     border-radius: 5px;
     box-shadow: 0px 2px 5px #00000040;
@@ -176,7 +181,7 @@
     position: relative;
   }
   
-  .connexion .rectangle {
+  .compte .rectangle {
     background-color: #fffcf7;
     border: 0.01px solid;
     border-color: #000000;
@@ -188,7 +193,7 @@
     top: 0;
     width: 92%;
   }
-  .connexion .text-wrapper-9 {
+  .compte .text-wrapper-9 {
     color: #2d544a;
     font-family: "Jost-Light", Helvetica;
     font-size: 1.3em;
@@ -201,15 +206,15 @@
     padding-left: 10%;
   }
   
-  .connexion .text-wrapper-9::placeholder {
+  .compte .text-wrapper-9::placeholder {
     opacity: 0.5;
   }
   
-  .connexion .text-wrapper-9:not(:placeholder-shown) {
+  .compte .text-wrapper-9:not(:placeholder-shown) {
     opacity: 1;
   }
   
-  .connexion .img-2 {
+  .compte .img-2 {
     height: 100%;
     left: 2%;
     position: absolute;
@@ -217,7 +222,7 @@
     width: 6%;
   }
   
-  .connexion .mail-outlined {
+  .compte .mail-outlined {
     height: 100%;
     left: 2%;
     position: absolute;
@@ -225,18 +230,27 @@
     width: 6%;
   }
   
-  .connexion .vector-wrapper {
+  .compte .vector-wrapper {
     background-color: #2d544a;
     border-radius: 10px;
     box-shadow: inset 0px 4px 4px #ffffff1a;
-    height: 270%;
-    left: 67%;
+    height: 6%;
+    left: 25%;
     position: absolute;
-    top: 1500%;
-    width: 16%;
-  }
+    top: 70%;
+    width: 50%;
+    color: #fffcf7;
+    text-decoration: none;
+    font-family: "Jost-Light", Helvetica;
+    font-size: 1.5em;
+    text-align: center;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+}
+
   
-  .connexion .vector {
+  .compte .vector {
     height: 200%;
     left: 13%;
     position: absolute;
@@ -244,7 +258,7 @@
     width: 90%;
   }
   
-  .connexion .text-wrapper-7 {
+  .compte .text-wrapper-7 {
     color: #2d544a;
     font-family: "Jost-Regular", Helvetica;
     font-size: 1.5em;
@@ -259,7 +273,7 @@
     width: 100%;
   }
   
-  .connexion .text-wrapper-8 {
+  .compte .text-wrapper-8 {
     color: #2d544a;
     font-family: "Jost-Regular", Helvetica;
     font-size: 1.5em;
@@ -287,7 +301,4 @@
     width: auto;
   }
   
-  body {
-    overflow: hidden;
-  }
   

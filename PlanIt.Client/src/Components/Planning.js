@@ -1,3 +1,4 @@
+import "../Styles/Planning.css";
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from "./Navbar";
@@ -237,7 +238,7 @@ const rafraichirRates = (idUtilisateur, idTodo) => {
         return(
             <div>
                 <h3>Votre planning</h3>
-                <p>Vous n'avez pas respecté votre planning, il n'est désormais plus réalisable avec les données que vous avez rentré.</p>
+                <div>Vous n'avez pas respecté votre planning, il n'est désormais plus réalisable avec les données que vous avez rentré.</div>
                 <Link to="/creerplanning">Veuillez en créer un nouveau</Link>
                 <Navbar />
             </div>
@@ -245,66 +246,77 @@ const rafraichirRates = (idUtilisateur, idTodo) => {
     }
     else if (todos.length === 0) {
         return (
-            <div>
-                <h3>Vous n'avez pas encore créé de planning</h3>
-                <Link to="/creerplanning">Créer un planning</Link>
+            <div className="planning">
+                <div className="text-wrapper">
+                    PlanIt
+                </div>
+                <div className="text-wrapper-2">Vous n'avez pas encore créé de planning</div>
+                <Link to="/creerplanning" className="vector-wrapper-creer">Créer un planning</Link>
                 <Navbar />
             </div>
         );
     } else if (dateTodos.length === 0) {
         return (
-            <div>
-                <h1>Votre planning</h1>
+            <div className="planning">
+                <div className="text-wrapper">
+                    PlanIt
+                </div>
+                <div className="text-wrapper-2">Votre planning</div>
                 <div>
-                    <h2>Pas de todo pour le {moment(selectedDate).locale('fr').format("dddd DD/MM/YYYY").replace(/^\w/, (c) => c.toUpperCase())}</h2>
-                    <button onClick={handleLeftArrowClick}>←</button>
-                    <button onClick={handleRightArrowClick}>→</button>
+                    <div className="text-wrapper-3">{moment(selectedDate).locale('fr').format("dddd DD/MM/YYYY").replace(/^\w/, (c) => c.toUpperCase())}</div>
+                    <button onClick={handleLeftArrowClick} className="vector-wrapper-left">←</button>
+                    <button onClick={handleRightArrowClick} className="vector-wrapper-right">→</button>
+                </div>
+                <div className="text-wrapper-4">
+                    Aucune todo de prévue aujourd'hui
                 </div>
                 {showPreviousDaysMessage && (
-                    <p>Vous n’avez pas précisé si vous avez effectué vos todos les jours précédents. Veuillez l’indiquer pour mettre à jour votre planning si nécessaire.</p>
+                    <div className="error-message-date">Vous n’avez pas précisé si vous avez effectué vos todos les jours précédents. Veuillez l’indiquer pour mettre à jour votre planning si nécessaire.</div>
                 )}
-                <br />
-                <h4>Note : {note}/100</h4>
+                <div className="text-wrapper-5">Note :</div>
+                <div className="text-wrapper-6">{note}/100</div>
                 <Navbar />       
             </div>
         );
     } else {
         return (
-            <div>
-                <h1>Votre planning</h1>
-                <div>
-                <h2>{moment(selectedDate).locale('fr').format("dddd DD/MM/YYYY").replace(/^\w/, (c) => c.toUpperCase())}</h2>
-                    <button onClick={handleLeftArrowClick}>←</button>
-                    <button onClick={handleRightArrowClick}>→</button>
+            <div className="planning">
+                <div className="text-wrapper">
+                    PlanIt
                 </div>
-                <h4>Todos du jour : </h4>
-                <ul>
+                <div className="text-wrapper-2">Votre planning</div>
+                <div>
+                    <div className="text-wrapper-3">{moment(selectedDate).locale('fr').format("dddd DD/MM/YYYY").replace(/^\w/, (c) => c.toUpperCase())}</div>
+                    <button onClick={handleLeftArrowClick} className="vector-wrapper-left">←</button>
+                    <button onClick={handleRightArrowClick} className="vector-wrapper-right">→</button>
+                </div>
+
                 {dateTodos.map((todo, index) => (
-                    <li key={index}>
+                    <li className="text-wrapper-7" key={index}>
                         {todo.nom} ({todo.duree + taches.find(tache => tache.nom === todo.nom)?.nombreHeuresRealisees + calculerDureeTotaleAvantDateSelectionnee(todo)} / {taches.find(tache => tache.nom === todo.nom)?.duree}), {todo.duree} heures
                         <br />
                         Avez-vous complété cette todo ?
-                        <button onClick={() => handleCompleteTodo(todo.todoId)}>Oui</button>
-                        <button onClick={() => handleNonButtonClick(todo.todoId)}>Non</button>
+                        <button onClick={() => handleCompleteTodo(todo.todoId)} className="vector-wrapper-oui">Oui</button>
+                        <button onClick={() => handleNonButtonClick(todo.todoId)} className="vector-wrapper-non">Non</button>
                         {showConfirmation && index === dateTodos.length - 1 && (
                             <div>
-                                <p>Attention, avez-vous bien coché toutes les Todos effectuées cette journée ?</p>
-                                <button onClick={() => handleOuiButtonClick(todo.todoId)}>Oui</button>
-                                <button onClick={() => setShowConfirmation(false)}>Non</button>
+                                <br/>
+                                <p>Avez-vous bien validé tous les todos effectués du jour ?</p>
+                                <button onClick={() => handleOuiButtonClick(todo.todoId)} className="vector-wrapper-oui-effectue">Oui</button>
+                                <button onClick={() => setShowConfirmation(false)} className="vector-wrapper-non-effectue">Non</button>
                             </div>
                         )}
                     </li>
                 ))}
 
-                </ul>
 
         
                 {showPreviousDaysMessage && (
-                    <p>Vous n’avez pas précisé si vous avez effectué vos todos les jours précédents. Veuillez l’indiquer pour mettre à jour votre planning si nécessaire.</p>
+                    <div className="error-message-date">Vous n’avez pas précisé si vous avez effectué vos todos les jours précédents. Veuillez l’indiquer pour mettre à jour votre planning si nécessaire.</div>
                 )}
         
-                <br />
-                <h4>Note : {note}/100</h4>
+                <div className="text-wrapper-5">Note :</div>
+                <div className="text-wrapper-6">{note}/100</div>
                 <Navbar />
             </div>
         );                  

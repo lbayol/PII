@@ -3,19 +3,28 @@ import axios from 'axios';
 import moment from 'moment';
 import Navbar from "./Navbar";
 import { Link, useNavigate } from 'react-router-dom';
+import "../Styles/CreerPlanning.css";
 
 const TacheInput = ({ index }) => (
   <div>
+    <div className='text-wrapper-5'>
     Tâche {index} :
+    </div>
+    <div className='bouton-nom'>
+    <input id={`nomTache${index}`} placeholder='Nom' className='text-wrapper-9'/>
+    </div>
+    <div className='bouton-duree'>
+    <input id={`dureeTache${index}`} placeholder='Durée (en h)' className='text-wrapper-9'/>
+    </div>
+    <div className='bouton-deadline'>
+    <input id={`deadlineTache${index}`} placeholder=" Deadline (dd-mm-yyyy)" className='text-wrapper-9'/>
+    </div>
     <br />
-    Nom
-    <input id={`nomTache${index}`} />
     <br />
-    Durée en heure
-    <input id={`dureeTache${index}`} />
     <br />
-    Deadline
-    <input id={`deadlineTache${index}`} placeholder="dd-mm-yyyy" />
+    <br />
+    <br />
+    <br />
     <br />
   </div>
 );
@@ -355,56 +364,61 @@ const supprimerTodos = async (utilisateurId) => {
   };
 
   return (
-    <div>
-      <h1>Générer un planning</h1>
+    <div className='creerplanning'>
+      <div className='text-wrapper'>PlanIt</div>
+      <div className='text-wrapper-2'>Générer un planning</div>
       <div>
+        <div className='text-wrapper-3'>
         Veuillez rentrer le nombre d'heure disponible pour chaque jour de la semaine :
-        <br />
-        <br />
-        Lundi
-        <input id="lundi" />
-        <br />
-        Mardi
-        <input id="mardi" />
-        <br />
-        Mercredi
-        <input id="mercredi" />
-        <br />
-        Jeudi
-        <input id="jeudi" />
-        <br />
-        Vendredi
-        <input id="vendredi" />
-        <br />
-        Samedi
-        <input id="samedi" />
-        <br />
-        Dimanche
-        <input id="dimanche" />
-        <br />
-        <br />
-        Veuillez rentrer les informations de vos différentes tâches
-        <br />
-        <br />
+        </div>
+        <div className="bouton-lundi">
+          <input id="lundi" className={`text-wrapper-9`} placeholder='Lundi'/>
+        </div>
+        <div className="bouton-mardi">
+          <input id="mardi" className={`text-wrapper-9`} placeholder='Mardi'/>
+        </div>
+        <div className="bouton-mercredi">
+          <input id="mercredi" className={`text-wrapper-9`} placeholder='Mercredi'/>
+        </div>
+        <div className="bouton-jeudi">
+          <input id="jeudi" className={`text-wrapper-9`} placeholder='Jeudi'/>
+        </div>
+        <div className="bouton-vendredi">
+          <input id="vendredi" className={`text-wrapper-9`} placeholder='Vendredi'/>
+        </div>
+        <div className="bouton-samedi">
+          <input id="samedi" className={`text-wrapper-9`} placeholder='Samedi'/>
+        </div>
+        <div className="bouton-dimanche">
+          <input id="dimanche" className={`text-wrapper-9`} placeholder='Dimanche'/>
+        </div>
+        <div className='text-wrapper-4'>
+        Veuillez rentrer les informations de vos différentes tâches : 
+        </div>
         {[...Array(nombreTaches)].map((_, index) => (
           <TacheInput key={index} index={index + 1} />
         ))}
-        <button onClick={ajouterTache}>+</button>
-        {nombreTaches > 1 && <button onClick={supprimerTache}>-</button>}
-        <br />
-        <br />
+        <button onClick={ajouterTache} className='vector-wrapper-add'>+</button>
+        {nombreTaches > 1 && <button onClick={supprimerTache} className='vector-wrapper-delete'>-</button>}
+        <div className='text-wrapper-4'>
         Sélectionnez une date de démarrage :
+        </div>
+        <div className='bouton-demarrage'>
         <input
           type="text"
           value={dateDemarrage}
           onChange={handleDateChange}
           placeholder="dd-mm-yyyy"
+          className='text-wrapper-9'
         />
+        </div>
         <br />
+        
+        <button onClick={handleCreate} className='vector-wrapper-creer'>Créer</button>
+        <div className='text-wrapper-6'>
+        Attention, si vous possédez déjà un planning, le planning actuel sera écrasé
+        </div>
         {errorMessage && <div className="error-message">{errorMessage}</div>}
-        <button onClick={handleCreate}>Créer</button>
-        <br />
-        (Attention, si vous possédez déjà un planning, le planning actuel sera écrasé)
       </div>
       <Navbar />
     </div>

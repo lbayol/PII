@@ -2,6 +2,10 @@ import React, {useEffect} from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from "./Navbar";
 import "../Styles/Compte.css";
+import forme from '../img/forme-1.png';
+import forme2 from '../img/forme1-1.png';
+import forme3 from '../img/forme3.png';
+import forme4 from '../img/forme4.png';
 
 export const Compte = () => {
   const prenom = localStorage.getItem('prenom');
@@ -20,16 +24,15 @@ export const Compte = () => {
   }, []);
 
   return (
-    <div>
-      <div classname="text-wrapper">PlanIt</div>
-      <br/>
+    
+    <div className='compte'>
+      <div className="text-wrapper">PlanIt</div>
       <div className='text-wrapper-2'>Bienvenue</div>
-      <div>{prenom}</div>
-      <br/>
-      <div>{nom}</div>
-      <br/>
-      <div>Organisation parfaite ? Déconnectez-vous juste ici.</div>
-      <Link to="/deconnexion">Se déconnecter</Link>
+      <div className='text-wrapper-3'>{prenom}</div>
+      <div className='text-wrapper-3'>{nom}</div>
+      <div className='text-wrapper-4'>Parfaitement organisé ? Déconnectez-vous juste ici.</div>
+      <Link to="/deconnexion" className='vector-wrapper'>Se déconnecter</Link>
+      <img className="forme" alt="Forme" src={forme4} />
       <Navbar/>
     </div>
   );

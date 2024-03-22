@@ -6,8 +6,10 @@
 
   .bottom-nav .active {
     color: #509583 !important;
+    background-color: #fffcf7;
   }
   
   .bottom-nav .inactive {
     color: #2d544a !important;
+    background-color: #fffcf7;
   }
