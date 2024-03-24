@@ -1,3 +1,6 @@
+// Ce fichier .js est celui de la page d'inscription
+
+// Différents imports
 import "../Styles/Inscription.css";
 import forme from '../img/forme-1.png';
 import forme2 from '../img/forme1-1.png';
@@ -12,6 +15,7 @@ import axios from 'axios';
 
 
 export const Inscription = () => {
+  // Définition des constantes
   const [nom, setNom] = useState('');
   const [prenom, setPrenom] = useState('');
   const [email, setMail] = useState('');
@@ -71,7 +75,6 @@ const [showError, setShowError] = useState(false);
         Password: password,
       });
 
-      console.log(response.data);
       setNom('');
       setPrenom('');
       setMail('');

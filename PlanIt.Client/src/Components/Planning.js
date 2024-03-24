@@ -1,3 +1,7 @@
+// Ce fichier .js est celui de la page où le planning est affiché. Sur cette page, on peut voir 
+// pour chaque jour les todos à faire et dire si on les a faite ou non.
+
+// Différents imports
 import "../Styles/Planning.css";
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -7,6 +11,7 @@ import moment from 'moment';
 import 'moment-locale-fr';
 
 export const Planning = () => {
+    // Définition des constantes
     const prenom = localStorage.getItem('prenom');
     const nom = localStorage.getItem('nom');
     const disponibilites = JSON.parse(localStorage.getItem('disponibilites')); // Convertir en objet JavaScript
@@ -22,27 +27,31 @@ export const Planning = () => {
     const [showPreviousDaysMessage, setShowPreviousDaysMessage] = useState(false); // Nouveau état pour afficher le message
     const todosBeforeSelectedDate = todos.filter(todo => moment(todo.date).isBefore(selectedDate, 'day'));
 
+    // Action lorsque l'on appuie sur la flèche gauche, on recule d'un jour
+
     const handleLeftArrowClick = () => {
         const newDate = moment(selectedDate).subtract(1, 'day').format("YYYY-MM-DD");
         setSelectedDate(newDate);
     };
+
+    // Action lorsque l'on appuie sur la flèche droite, on avance d'un jour
 
     const handleRightArrowClick = () => {
         const newDate = moment(selectedDate).add(1, 'day').format("YYYY-MM-DD");
         setSelectedDate(newDate);
     };
 
+    // Action lorsque l'on annonce avoir complété une todo
+
     const handleCompleteTodo = async (todoId) => {
         try {
             // Rafraîchir les heures réalisées
-            console.log(todoId);
             await rafraichirHeuresRealisees(idutilisateur, todoId);
             
             // Mettre à jour les tâches
             const userResponse = await axios.get(`http://localhost:5035/api/utilisateur/infos/${idutilisateur}`);
             const updatedTaches = userResponse.data.taches;
             setTaches(updatedTaches);
-            console.log(todos);
             // Définir l'ID de la tâche terminée
             setCompletedTodoId(todoId);
     
@@ -58,6 +67,7 @@ export const Planning = () => {
     const [completeTodoTrigger, setCompleteTodoTrigger] = useState(false);
     const [completedTodoId, setCompletedTodoId] = useState(null); // Ajout d'un état pour stocker l'ID de la tâche terminée
 
+    // Utilisation d'un useEffect pour que les changements opérent directement (sans attendre les fonctions asynchrones)
 useEffect(() => {
     const fetchData = async (todoId) => { // Passer todoId en paramètre
         try {
@@ -66,15 +76,10 @@ useEffect(() => {
         // Extraire le nom de la todo
         const nomTodo = todo.nom;
             // Supprimer la todo avec l'ID correspondant
-            console.log(todos);
             await axios.delete(`http://localhost:5035/api/utilisateur/${idutilisateur}/todos/${todoId}/supprimerTodo`);
-            console.log(todos);
             await rafraichirNoteRatesDisponibles(idutilisateur, nomTodo);
-            console.log(todos);
 
             // Rafraîchir les notes et les disponibilités
-            console.log(taches);
-            console.log(todoId);
             const response = await axios.get(`http://localhost:5035/api/utilisateur/infos/${idutilisateur}`);
             const updatedTodos = response.data.todos;
             const updatedNote = response.data.note;
@@ -83,7 +88,6 @@ useEffect(() => {
             localStorage.setItem('taches', JSON.stringify(response.data.taches));
             localStorage.setItem('todos', JSON.stringify(updatedTodos));
             localStorage.setItem('note', updatedNote);
-            console.log(todos);
 
             // Mettre à jour les états avec les données mises à jour
             setTaches(response.data.taches);
@@ -105,13 +109,8 @@ useEffect(() => {
     }
 }, [completeTodoTrigger, completedTodoId]); // Ajouter completedTodoId comme dépendance
 
+    // Action si l'on dit que l'on a pas complété une todo.
 
-    
-    
-    
-    
-    
-    
     const handleNonButtonClick = (todoId) => {
         // Afficher la question et les nouveaux boutons si nécessaire
         if (dateTodos.length > 1) {
@@ -122,29 +121,24 @@ useEffect(() => {
         }
     };    
     
+    // Action si l'on dit que l'on a pas complété de todo et que l'on confirme alors qu'il y avait plusieurs todos ce jour là
+
     const handleOuiButtonClick = async (todoId) => {
-        console.log(todos);
         await rafraichirRates(idutilisateur, todoId);
-        console.log(todos);
         try {
             // Appeler la méthode RegenererTodos pour régénérer les Todos
-            console.log(todos);
             await axios.post(`http://localhost:5035/api/utilisateur/regenererTodos/${todoId}`);
-            console.log(todos);
             
             axios.put(`http://localhost:5035/api/utilisateur/UpdateNote/${idutilisateur}`)
             .then(noteResponse => {
-                console.log(todos);
                 // Effectuer une requête GET pour récupérer les informations de l'utilisateur mises à jour
                 axios.get(`http://localhost:5035/api/utilisateur/infos/${idutilisateur}`)
                 .then(userResponse => {
-                    console.log(todos);
                     // Mettre à jour la note dans le localStorage avec la nouvelle note récupérée
                     localStorage.setItem('note', userResponse.data.note);
                     setNote(userResponse.data.note);
                     localStorage.setItem('todos', JSON.stringify(userResponse.data.todos));
                     setTodos(userResponse.data.todos);
-                    console.log(todos);
                 })
                 .catch(error => {
                     console.error('Une erreur est survenue lors de la récupération des informations de l\'utilisateur : ', error);
@@ -153,7 +147,6 @@ useEffect(() => {
             .catch(error => {
                 console.error('Une erreur est survenue lors de la mise à jour de la note de l\'utilisateur : ', error);
             });
-            console.log(todos);
             // Cacher la confirmation après avoir traité la réponse
             setShowConfirmation(false);
         } catch (error) {
@@ -162,16 +155,7 @@ useEffect(() => {
         console.log("taches après avoir cliqué sur oui : ",taches);
     };
 
-    // Fonction pour calculer le nombre total d'heures par tâche
-const calculerHeureTotaleTache = (taskName) => {
-    let totalHours = 0;
-    todos.forEach(todo => {
-        if (todo.nom === taskName) {
-            totalHours += todo.duree;
-        }
-    });
-    return totalHours;
-};
+// Rafraîchir le nombre d'heures ratées pour une tâche pour un utilisateur
 
 const rafraichirRates = (idUtilisateur, idTodo) => {
     return new Promise((resolve, reject) => {
@@ -187,6 +171,8 @@ const rafraichirRates = (idUtilisateur, idTodo) => {
     });
   };
 
+  // Rafraîchir le nombre d'heures réalisées pour une tâche pour un utilisateur
+
   const rafraichirHeuresRealisees = (idUtilisateur, idTodo) => {
     return new Promise((resolve, reject) => {
       axios.put(`http://localhost:5035/api/utilisateur/RafraichirHeuresRealisees?idUtilisateur=${idUtilisateur}&idTodo=${idTodo}`)
@@ -200,6 +186,8 @@ const rafraichirRates = (idUtilisateur, idTodo) => {
         });
     });
   };
+
+  // Rafraîchir la note, les ratés et les heures disponibles pour un utilisateur
 
   const rafraichirNoteRatesDisponibles = (idUtilisateur, nomTodo) => {
     return new Promise((resolve, reject) => {
@@ -234,6 +222,7 @@ const rafraichirRates = (idUtilisateur, idTodo) => {
             setShowPreviousDaysMessage(hasUncompletedPastTodos);
         }
     }, [selectedDate, todos]);
+    // Si la note est strictement inférieure à 0, le planning est terminé et irréalisable
     if(note<0) {
         return(
             <div>
@@ -245,6 +234,7 @@ const rafraichirRates = (idUtilisateur, idTodo) => {
         );
     }
     else if (todos.length === 0) {
+        // S'il n'y a pas de planning de créée.
         return (
             <div className="planning">
                 <div className="text-wrapper">
@@ -256,6 +246,7 @@ const rafraichirRates = (idUtilisateur, idTodo) => {
             </div>
         );
     } else if (dateTodos.length === 0) {
+        // S'il n'y a pas de todo pour le jour selectionné
         return (
             <div className="planning">
                 <div className="text-wrapper">
@@ -279,6 +270,7 @@ const rafraichirRates = (idUtilisateur, idTodo) => {
             </div>
         );
     } else {
+        // S'il y a bien une todo pour la date sélectionnée
         return (
             <div className="planning">
                 <div className="text-wrapper">

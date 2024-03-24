@@ -1,3 +1,5 @@
+// Fichier .js permettant de se déconnecter
+
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 

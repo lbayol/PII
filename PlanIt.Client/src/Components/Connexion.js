@@ -1,3 +1,5 @@
+// Fichier .js de la page permettant de se connecter
+
 import "../Styles/Connexion.css";
 import forme from '../img/forme-1.png';
 import forme2 from '../img/forme1-1.png';
@@ -24,6 +26,7 @@ export const Connexion = () => {
       password: '',
     };
 
+    // Vérification des erreurs
     if (!email) {
       errorsCopy.email = 'Veuillez entrer votre adresse e-mail';
     } else if (!/\S+@\S+\.\S+/.test(email)) {
@@ -45,9 +48,7 @@ export const Connexion = () => {
         Email: email,
         Password: password,
       });
-      console.log(response.data);
       const userInfoResponse = await axios.get(`http://localhost:5035/api/utilisateur/infosConnexion?email=${email}`);
-      console.log(userInfoResponse.data);
       const Prenom = userInfoResponse.data.prenom;
       const Nom = userInfoResponse.data.nom;
       const Disponibilites = userInfoResponse.data.disponibilites;
@@ -55,10 +56,6 @@ export const Connexion = () => {
       const Taches = userInfoResponse.data.taches;
       const IdUtilisateur = userInfoResponse.data.utilisateurId;
       const Note = userInfoResponse.data.note;
-      console.log(userInfoResponse);
-      console.log(userInfoResponse.data);
-      console.log(Prenom);
-      console.log(Nom);
       if (Prenom && Nom) {
         setMail('');
         setMdp('');

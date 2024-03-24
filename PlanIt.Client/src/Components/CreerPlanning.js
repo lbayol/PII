@@ -1,3 +1,6 @@
+// Fichier .js permettant de générer le planning, en renseignant toutes les informations nécessaire dans des inputs.
+
+// Différents imports
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import moment from 'moment';
@@ -5,6 +8,7 @@ import Navbar from "./Navbar";
 import { Link, useNavigate } from 'react-router-dom';
 import "../Styles/CreerPlanning.css";
 
+// Const permettant de d'afficher les tâches pour pouvoir en ajouter ou en supprimer
 const TacheInput = ({ index }) => (
   <div>
     <div className='text-wrapper-5'>
@@ -29,6 +33,7 @@ const TacheInput = ({ index }) => (
   </div>
 );
 
+// Const de vérification du fait que la date soit au format "dd-mm-yyyy"
 const isValidDate = (dateString) => {
   const dateRegex = /^\d{2}-\d{2}-\d{4}$/;
 
@@ -48,6 +53,7 @@ const isValidDate = (dateString) => {
 };
 
 export const CreerPlanning = () => {
+  //Définition des constantes
   const [errorMessage, setErrorMessage] = useState("");
   const [nombreTaches, setNombreTaches] = useState(1);
   const [dateDemarrage, setDateDemarrage] = useState("");
@@ -64,6 +70,7 @@ export const CreerPlanning = () => {
     }
   }, []);
 
+  // Différents appels de méthodes du backend
   const updateDisponibilites = (disponibilitesData) => {
     return new Promise((resolve, reject) => {
         axios.put(`http://localhost:5035/api/utilisateur/UpdateDisponibilités/${idutilisateur}`, disponibilitesData)
@@ -80,7 +87,6 @@ export const CreerPlanning = () => {
 
 
   const creerTache = (tachesData) => {
-    console.log("tacheData :", tachesData);
     return axios.post(`http://localhost:5035/api/utilisateur/${idutilisateur}/tache`, tachesData)
       .then(response => {
         console.log("Tâches créées avec succès :", response.data);
@@ -151,7 +157,9 @@ const supprimerTodos = async (utilisateurId) => {
   }
 };
 
+  // Action réalisée lorsque l'on appuie sur le bouton "Créer"
   const handleCreate = async () => {
+    // On récupère toutes les informations écrites dans les inputs
     const lundiInput = document.getElementById('lundi');
     const mardiInput = document.getElementById('mardi');
     const mercrediInput = document.getElementById('mercredi');
@@ -164,6 +172,7 @@ const supprimerTodos = async (utilisateurId) => {
     const inputsDeadlineTache = document.querySelectorAll('[id^=deadlineTache]');
     let dureeTotaleTaches = 0;
 
+    // Vérification de diverses erreurs (nombre entiers, dates valides, pas de champ manquant etc.)
     const validateInputs = (inputs) => {
         for (let i = 0; i < inputs.length; i++) {
             if (!Number.isInteger(parseInt(inputs[i].value))) {
@@ -201,6 +210,7 @@ const supprimerTodos = async (utilisateurId) => {
         }
     }
 
+    // On trie les tâches par ordre de deadline croissante
     const tachesTriees = [];
     for (let i = 1; i <= nombreTaches; i++) {
         const tache = {
@@ -211,7 +221,6 @@ const supprimerTodos = async (utilisateurId) => {
         tachesTriees.push(tache);
     }
     tachesTriees.sort((a, b) => a.deadline - b.deadline);
-    console.log("taches triées : ",tachesTriees);
 
     const disponibilites = [parseInt(lundiInput.value), parseInt(mardiInput.value), parseInt(mercrediInput.value), parseInt(jeudiInput.value), parseInt(vendrediInput.value), parseInt(samediInput.value), parseInt(dimancheInput.value)];
     for (let i = 0; i < disponibilites.length; i++) {
@@ -224,6 +233,7 @@ const supprimerTodos = async (utilisateurId) => {
   // Mise à jour des disponibilités
   await updateDisponibilites(disponibilites);
 
+  // Vérification qu'il n'y ai pas une deadline inférieure à la date de démarrage
   for (let i = 1; i <= nombreTaches; i++) {
     const deadlineTache = moment(document.getElementById(`deadlineTache${i}`).value, "DD-MM-YYYY").toDate();
     const deadlineTacheSansHeure = new Date(deadlineTache.getFullYear(), deadlineTache.getMonth(), deadlineTache.getDate());
@@ -239,12 +249,12 @@ const supprimerTodos = async (utilisateurId) => {
     var jourParcouruSansHeure = new Date(jourParcouru.getFullYear(), jourParcouru.getMonth(), jourParcouru.getDate());
     for (let i = 0; i < tachesTriees.length; i++) {
       const tache = tachesTriees[i];
-      console.log(tache);
-      console.log("parseInt dureetache : ", parseInt(tache.duree));
       dureeTotaleTaches += parseInt(tache.duree);
       const deadlineTache = moment(tache.deadline, "DD-MM-YYYY").toDate();
       const deadlineTacheSansHeure = new Date(deadlineTache.getFullYear(), deadlineTache.getMonth(), deadlineTache.getDate());
-  }  
+  } 
+  
+  // Vérification que le planning soit bien réalisable au vu des deadlines données, des disponibilités renseignées ainsi que des durées de tâches données et de la date de démarrage
   for (let i = 0; i < tachesTriees.length; i++) {
     const tache = tachesTriees[i];
     const dureeTache = parseInt(tache.duree);
@@ -252,17 +262,13 @@ const supprimerTodos = async (utilisateurId) => {
     var dureeRestanteTache = dureeTache;
 
     while (dureeRestanteTache > 0 && jourParcouruSansHeure <= deadlineTache) {
-        console.log("jour : ", jourParcouruSansHeure);
         var jourSemaine = (jourParcouruSansHeure.getDay() + 6) % 7; // Ajustement pour obtenir l'index correct du Lundi au Dimanche
-        console.log(jourSemaine);
         var disponibiliteJour = disponibilites[jourSemaine];
         dureeRestanteTache -= parseInt(disponibiliteJour);
         dureeTotaleTaches -= parseInt(disponibiliteJour);
         jourParcouruSansHeure.setDate(jourParcouruSansHeure.getDate() + 1);
     }
 }
-
-    console.log("dureeTotaleTaches : ",dureeTotaleTaches);
 
     if(dureeTotaleTaches>0)
     {
@@ -279,6 +285,7 @@ const supprimerTodos = async (utilisateurId) => {
             console.error("Erreur lors de la suppression des tâches :", error);
         });
 
+    // On créer les tâches en fonctions de ce qui a été rempli
     const tachesDataArray = [];
 
     for (let i = 1; i <= nombreTaches; i++) {
@@ -318,6 +325,7 @@ const supprimerTodos = async (utilisateurId) => {
         }
     }
 
+    // On supprime les todos de l'utilisateur s'il y en a
     try {
       await supprimerTodos(idutilisateur);
     } catch (error) {
@@ -325,8 +333,11 @@ const supprimerTodos = async (utilisateurId) => {
       // Gérer l'erreur de suppression des Todos ici
     }
     
+    // On génère le planning
+
     await genererTodos(dateDemarrage);
 
+    // On calcule le nombre d'heures disponibles de l'utilisateur si c'est possible.
     try {
         await calculerHeuresDisponibles(idutilisateur);
         console.log("Les heures disponibles ont été calculées avec succès");
@@ -334,8 +345,10 @@ const supprimerTodos = async (utilisateurId) => {
         console.error("Erreur lors du calcul des heures disponibles :", error);
     }
 
+    // On rafraîchit la note et le nombre d'heures ratées de l'utilisateur à 0.
     await rafraichirNoteRates(idutilisateur);
 
+    // On stock toutes les variables dans le localStorage
     try {
         const userInfoResponse = await axios.get(`http://localhost:5035/api/utilisateur/infosConnexion?email=${email}`);
         const { disponibilites, todos, taches, note } = userInfoResponse.data;
