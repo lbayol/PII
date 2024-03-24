@@ -9,12 +9,17 @@ namespace PlanIt.Controllers
     [Route("api/utilisateur")]
     public class TacheController : ControllerBase
     {
+        // Contexte de base de données
         private readonly PlanItContext _context;
+
+        // Constructeur
 
         public TacheController(PlanItContext context)
         {
             _context = context;
         }
+
+        // Méthode permettant de créer une tâche pour un utilisateur
 
         [HttpPost("{utilisateurId}/tache")]
         public IActionResult CreerTache(int utilisateurId, [FromBody] TacheDTO tacheDTO)
@@ -63,41 +68,51 @@ namespace PlanIt.Controllers
 
             return Ok(nouvelleTache);
         }
+
+        // Méthode pour rafraîchir le nombre d'heure réalisée d'une tâche
+
         [HttpPut("RafraichirHeuresRealisees")]
-public IActionResult RafraichirHeuresRealisees(int idUtilisateur, int idTache, int idTodo)
-{
-    var utilisateur = _context.Utilisateurs
-                              .Include(u => u.Todos)
-                              .Include(u => u.Disponibilites)
-                              .Include(u => u.Taches)
-                              .FirstOrDefault(u => u.UtilisateurId == idUtilisateur);
-
-    if (utilisateur == null)
-    {
-        return NotFound("Utilisateur non trouvé.");
-    }
-
-    foreach(var todo in utilisateur.Todos)
-    {
-        if(todo.TodoId == idTodo)
+        public IActionResult RafraichirHeuresRealisees(int idUtilisateur, int idTache, int idTodo)
         {
-            foreach(var tache in utilisateur.Taches)
+            // Récupérer l'utilisateur correspondant à l'idUtilisateur à l'aide de la méthode FirstOrDefault de LINQ, en incluant ses todos, ses disponibilités et ses tâches
+            var utilisateur = _context.Utilisateurs
+            .Include(u => u.Todos)
+            .Include(u => u.Disponibilites)
+            .Include(u => u.Taches)
+            .FirstOrDefault(u => u.UtilisateurId == idUtilisateur);
+
+            // Vérifier si l'utilisateur existe, sinon renvoie une erreur.
+            if (utilisateur == null)
             {
-                if(tache.Nom == todo.Nom)
+                return NotFound("Utilisateur non trouvé.");
+            }
+
+            // Parcourir toutes les todos de l'utilisateur et vérifier si l'ID de la todo correspond à l'idTodo fourni en paramètre
+            foreach (var todo in utilisateur.Todos)
+            {
+                if (todo.TodoId == idTodo)
                 {
-                    tache.NombreHeuresRealisees += todo.Duree;
-                    if(tache.NombreHeuresRealisees == tache.Duree)
+                    // Parcourir toutes les tâches de l'utilisateur et vérifier si le nom de la tâche correspond au nom de la todo
+                    foreach (var tache in utilisateur.Taches)
                     {
-                        tache.Realisation = true;
+                        if (tache.Nom == todo.Nom)
+                        {
+                            // Mettre à jour le nombre d'heures réalisées pour cette tâche en ajoutant la durée de la todo
+                            tache.NombreHeuresRealisees += todo.Duree;
+                            // Si le nombre d'heures réalisées est égal à la durée totale de la tâche, marquer la tâche comme réalisée
+                            if (tache.NombreHeuresRealisees == tache.Duree)
+                            {
+                                tache.Realisation = true;
+                            }
+                        }
                     }
                 }
             }
+
+            _context.SaveChanges();
+
+            // Renvoie un message de succès.
+            return Ok("Les ratés de l'utilisateur ont été mis à jour.");
         }
-    }
-
-     _context.SaveChanges();
-
-    return Ok("Les ratés de l'utilisateur ont été mis à jour.");
-}
     }
 }

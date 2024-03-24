@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace PII.Migrations
 {
     [DbContext(typeof(PlanItContext))]
-    [Migration("20240320105130_Migrations")]
+    [Migration("20240324224615_Migrations")]
     partial class Migrations
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -84,9 +84,6 @@ namespace PII.Migrations
                     b.Property<string>("Nom")
                         .IsRequired()
                         .HasColumnType("TEXT");
-
-                    b.Property<int>("Rates")
-                        .HasColumnType("INTEGER");
 
                     b.Property<bool>("Realisation")
                         .HasColumnType("INTEGER");

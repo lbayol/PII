@@ -106,8 +106,7 @@ namespace PII.Migrations
                     Date = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
                     UtilisateurId = table.Column<int>(type: "INTEGER", nullable: false),
                     TacheId = table.Column<int>(type: "INTEGER", nullable: false),
-                    Realisation = table.Column<bool>(type: "INTEGER", nullable: false),
-                    Rates = table.Column<int>(type: "INTEGER", nullable: false)
+                    Realisation = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {

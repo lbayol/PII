@@ -83,9 +83,6 @@ namespace PII.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("Rates")
-                        .HasColumnType("INTEGER");
-
                     b.Property<bool>("Realisation")
                         .HasColumnType("INTEGER");
 
