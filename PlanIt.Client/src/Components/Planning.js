@@ -225,10 +225,12 @@ const rafraichirRates = (idUtilisateur, idTodo) => {
     // Si la note est strictement inférieure à 0, le planning est terminé et irréalisable
     if(note<0) {
         return(
-            <div>
-                <h3>Votre planning</h3>
-                <div>Vous n'avez pas respecté votre planning, il n'est désormais plus réalisable avec les données que vous avez rentré.</div>
-                <Link to="/creerplanning">Veuillez en créer un nouveau</Link>
+            <div className="planning">
+                <div className="text-wrapper">
+                    PlanIt
+                </div>
+                <div className="text-wrapper-3">Vous n'avez pas respecté votre planning, il n'est désormais plus réalisable avec les données que vous avez rentré.</div>
+                <Link to="/creerplanning" className="vector-wrapper-creer">Créer un planning</Link>
                 <Navbar />
             </div>
         );
