@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace PII.Migrations
 {
     [DbContext(typeof(PlanItContext))]
-    [Migration("20240324224615_Migrations")]
+    [Migration("20240326220041_Migrations")]
     partial class Migrations
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
